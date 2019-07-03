@@ -122,6 +122,9 @@ private:
   /*! Transform from Frame7 of PSM1 to PSM1 Base. */
   vtkPlusDataSource* psm1Frame7;
 
+	vtkPlusDataSource* psm1Lower;
+	vtkPlusDataSource* psm1Upper;
+
   /*************** PSM2 LINK TRANSFORMS ***************/
 
   /*! Transform from Frame1 of PSM2 to PSM2 Base. */
@@ -144,6 +147,9 @@ private:
 
   /*! Transform from Frame7 of PSM2 to PSM2 Base. */
   vtkPlusDataSource* psm2Frame7;
+
+	vtkPlusDataSource* psm2Lower;
+	vtkPlusDataSource* psm2Upper;
 
   /*************** ECM LINK TRANSFORMS ***************/
 

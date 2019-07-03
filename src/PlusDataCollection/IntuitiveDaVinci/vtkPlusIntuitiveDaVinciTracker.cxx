@@ -26,8 +26,8 @@ vtkPlusIntuitiveDaVinciTracker::vtkPlusIntuitiveDaVinciTracker()
   , DebugSineWaveMode(false)
   , psm1Joints(NULL), psm2Joints(NULL), ecmJoints(NULL)
   , psm1Base(NULL),   psm2Base(NULL),   ecmBase(NULL)
-  , psm1Frame1(NULL), psm1Frame2(NULL), psm1Frame3(NULL), psm1Frame4(NULL), psm1Frame5(NULL), psm1Frame6(NULL), psm1Frame7(NULL)
-  , psm2Frame1(NULL), psm2Frame2(NULL), psm2Frame3(NULL), psm2Frame4(NULL), psm2Frame5(NULL), psm2Frame6(NULL), psm2Frame7(NULL)
+  , psm1Frame1(NULL), psm1Frame2(NULL), psm1Frame3(NULL), psm1Frame4(NULL), psm1Frame5(NULL), psm1Frame6(NULL), psm1Frame7(NULL), psm1Lower(NULL), psm1Upper(NULL)
+  , psm2Frame1(NULL), psm2Frame2(NULL), psm2Frame3(NULL), psm2Frame4(NULL), psm2Frame5(NULL), psm2Frame6(NULL), psm2Frame7(NULL), psm2Lower(NULL), psm2Upper(NULL)
   , ecmFrame1(NULL),  ecmFrame2(NULL),  ecmFrame3(NULL),  ecmFrame4(NULL),  ecmFrame5(NULL),  ecmFrame6(NULL),  ecmFrame7(NULL)
 {
   this->StartThreadForInternalUpdates = true; // Want a dedicated thread
@@ -103,6 +103,10 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalConnect()
   GetToolByPortName("psm1Frame6", this->psm1Frame6);
   GetToolByPortName("psm1Frame7", this->psm1Frame7);
 
+	//TEST
+	GetToolByPortName("psm1Lower", this->psm1Lower);
+	GetToolByPortName("psm1Upper", this->psm1Upper);
+
   GetToolByPortName("psm2Frame1", this->psm2Frame1);
   GetToolByPortName("psm2Frame2", this->psm2Frame2);
   GetToolByPortName("psm2Frame3", this->psm2Frame3);
@@ -110,6 +114,10 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalConnect()
   GetToolByPortName("psm2Frame5", this->psm2Frame5);
   GetToolByPortName("psm2Frame6", this->psm2Frame6);
   GetToolByPortName("psm2Frame7", this->psm2Frame7);
+
+	//TEST
+	GetToolByPortName("psm2Lower", this->psm2Lower);
+	GetToolByPortName("psm2Upper", this->psm2Upper);
 
   GetToolByPortName("ecmFrame1", this->ecmFrame1);
   GetToolByPortName("ecmFrame2", this->ecmFrame2);
@@ -191,6 +199,7 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   ISI_FLOAT* jointValues;
 
   jointValues = this->DaVinci->GetPsm1()->GetJointValues();
+
   tmpVtkMatrix->Identity();
   tmpVtkMatrix->SetElement(0, 0, jointValues[0]);
   tmpVtkMatrix->SetElement(0, 1, jointValues[1]);
@@ -200,9 +209,15 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
   tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
   unsigned long frameNumber = psm1Joints->GetFrameNumber() + 1;
+
+	//TEST
+	ISI_FLOAT angle1 = jointValues[6];
+
   ToolTimeStampedUpdate(psm1Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
+
   jointValues = this->DaVinci->GetPsm2()->GetJointValues();
+
   tmpVtkMatrix->Identity();
   tmpVtkMatrix->SetElement(0, 0, jointValues[0]);
   tmpVtkMatrix->SetElement(0, 1, jointValues[1]);
@@ -212,6 +227,10 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
   tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
   frameNumber = psm2Joints->GetFrameNumber() + 1;
+
+	//TEST
+	ISI_FLOAT angle2 = jointValues[6];
+
   ToolTimeStampedUpdate(psm2Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
   jointValues = this->DaVinci->GetEcm()->GetJointValues();
@@ -222,6 +241,40 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   tmpVtkMatrix->SetElement(0, 3, jointValues[3]);
   frameNumber = ecmJoints->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(ecmJoints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+
+	//TEST
+	tmpVtkMatrix->Identity();
+	tmpVtkMatrix->SetElement(0, 0, cos(-angle1 / 2));
+	tmpVtkMatrix->SetElement(0, 1, -sin(-angle1 / 2));
+	tmpVtkMatrix->SetElement(1, 0, sin(-angle1 / 2));
+	tmpVtkMatrix->SetElement(1, 1, cos(-angle1 / 2));
+	frameNumber = psm1Upper->GetFrameNumber() + 1;
+	ToolTimeStampedUpdate(psm1Upper->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+
+	tmpVtkMatrix->Identity();
+	tmpVtkMatrix->SetElement(0, 0, cos(angle1 / 2));
+	tmpVtkMatrix->SetElement(0, 1, -sin(angle1 / 2));
+	tmpVtkMatrix->SetElement(1, 0, sin(angle1 / 2));
+	tmpVtkMatrix->SetElement(1, 1, cos(angle1 / 2));
+	frameNumber = psm1Lower->GetFrameNumber() + 1;
+	ToolTimeStampedUpdate(psm1Lower->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+	
+	tmpVtkMatrix->Identity();
+	tmpVtkMatrix->SetElement(0, 0, cos(-angle2 / 2));
+	tmpVtkMatrix->SetElement(0, 1, -sin(-angle2 / 2));
+	tmpVtkMatrix->SetElement(1, 0, sin(-angle2 / 2));
+	tmpVtkMatrix->SetElement(1, 1, cos(-angle2 / 2));
+	frameNumber = psm2Upper->GetFrameNumber() + 1;
+	ToolTimeStampedUpdate(psm2Upper->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+
+	tmpVtkMatrix->Identity();
+	tmpVtkMatrix->SetElement(0, 0, cos(angle2 / 2));
+	tmpVtkMatrix->SetElement(0, 1, -sin(angle2 / 2));
+	tmpVtkMatrix->SetElement(1, 0, sin(angle2 / 2));
+	tmpVtkMatrix->SetElement(1, 1, cos(angle2 / 2));
+	frameNumber = psm2Lower->GetFrameNumber() + 1;
+	ToolTimeStampedUpdate(psm2Lower->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+
 
   // Update all of the manipulator base frames
   PUBLISH_ISI_TRANSFORM(psm1Base, this->DaVinci->GetPsm1BaseToWorld());
