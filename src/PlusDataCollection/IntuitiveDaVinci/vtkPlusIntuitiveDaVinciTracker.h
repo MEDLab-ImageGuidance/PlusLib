@@ -170,7 +170,7 @@ private:
 
   /*! Transform from Frame6 of ECM to ECM Base. */
   vtkPlusDataSource* ecmFrame6;
-
+	
   /*! Transform from Frame7 of ECM to ECM Base. */
   vtkPlusDataSource* ecmFrame7;
 };
