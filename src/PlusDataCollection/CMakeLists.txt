@@ -47,6 +47,7 @@ OPTION(PLUS_USE_SPINNAKER_VIDEO "Provide support for Point Grey Spinnaker API co
 OPTION(PLUS_USE_THORLABS_VIDEO "Provide support for the ThorLabs compact spectrometers" OFF)
 OPTION(PLUS_USE_STEALTHLINK "Provide support for the Medtronick StealthLink Server" OFF)
 OPTION(PLUS_USE_IntuitiveDaVinci "Enable the tracking of the da Vinci Surgical System. Enable this only if you have a da Vinci that is accessible from this computer." OFF)
+OPTION(PLUS_USE_IntuitiveDaVinciXi "Enable the tracking of the da Vinci Xi Surgical System. Enable this only if you have a da Vinci Xi that is accessible from this computer." OFF)
 OPTION(PLUS_USE_PHILIPS_3D_ULTRASOUND "Provide support for the Philips ie33 3D ultrasound probe system." OFF)
 OPTION(PLUS_TEST_BKPROFOCUS "Enable testing of acquisition from BK ProFocus ultrasound systems. Enable this only if a BK ProFocus device is connected to this computer." OFF)
 OPTION(PLUS_USE_AGILENT "Provide support for the Agilent PCI digitizer." OFF)
@@ -1425,6 +1426,69 @@ IF(PLUS_USE_IntuitiveDaVinci)
 ENDIF()
 
 # --------------------------------------------------------------------------
+# da Vinci Xi support using prebuilt shared libraries
+IF(PLUS_USE_IntuitiveDaVinciXi)
+  SET(daVinciXi_SRCS
+    IntuitiveDaVinciXi/vtkPlusIntuitiveDaVinciTrackerXi.cxx
+    IntuitiveDaVinciXi/IntuitiveDaVinciXi.cxx
+    IntuitiveDaVinciXi/IntuitiveDaVinciManipulatorXi.cxx
+  )
+  
+  IF(MSVC OR ${CMAKE_GENERATOR} MATCHES "Xcode")
+    SET(daVinciXi_HDRS
+      IntuitiveDaVinciXi/vtkPlusIntuitiveDaVinciTrackerXi.h
+      IntuitiveDaVinciXi/IntuitiveDaVinciXi.h
+      IntuitiveDaVinciXi/IntuitiveDaVinciManipulatorXi.h
+    )
+  ENDIF()
+
+  LIST(APPEND ${PROJECT_NAME}_HDRS
+    ${daVinciXi_HDRS}
+    )
+
+  LIST(APPEND ${PROJECT_NAME}_SRCS
+    ${daVinciXi_SRCS}
+    )
+  
+  # Collect all the DaVinciAPI libraries
+  SET(PLATFORM_NAME_SUFFIX "")
+  SET(LIBRARIES_PATH_SUFFIX "lib32/")
+  IF (CMAKE_HOST_WIN32 AND CMAKE_CL_64 )
+    SET(PLATFORM_NAME_SUFFIX "x64")
+    SET(LIBRARIES_PATH_SUFFIX "")
+  ENDIF ()
+
+  LIST(APPEND IntuitiveDaVinciXi_STATIC_LIBS
+    ${IntuitiveDaVinciXi_LIBRARY_DIR}/dv_api${CMAKE_STATIC_LIBRARY_SUFFIX}
+	${IntuitiveDaVinciXi_LIBRARY_DIR}/dv_api_math${CMAKE_STATIC_LIBRARY_SUFFIX}
+	${PYTHON_LIBRARY_DIR}/python36${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+
+  LIST(APPEND IntuitiveDaVinciXi_SHARED_LIBS
+    ${IntuitiveDaVinciXi_BINARY_DIR}/dv_api${CMAKE_SHARED_LIBRARY_SUFFIX}
+	${IntuitiveDaVinciXi_BINARY_DIR}/dv_api_math${CMAKE_SHARED_LIBRARY_SUFFIX}
+	${PYTHON_BINARY_DIR}/python36${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )
+
+  mark_as_advanced(IntuitiveDaVinciXi_STATIC_LIBS)
+  mark_as_advanced(IntuitiveDaVinciXi_SHARED_LIBS)
+
+  LIST(APPEND ${PROJECT_NAME}_INCLUDE_DIRS
+    ${IntuitiveDaVinciXi_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/IntuitiveDaVinciXi
+  )
+  
+  LIST(APPEND ${PROJECT_NAME}_LIBS
+    ${IntuitiveDaVinciXi_STATIC_LIBS}
+    )
+
+  LIST(APPEND External_Libraries_Install
+    ${IntuitiveDaVinciXi_SHARED_LIBS}
+    )
+
+ENDIF()
+
+# --------------------------------------------------------------------------
 # Video-for-Windows video digitizer support
 IF(PLUS_USE_VFW_VIDEO)
   SET(Vfw_SRCS
@@ -2409,6 +2473,7 @@ source_group("Epiphan" FILES ${Epiphan_HDRS} ${Epiphan_SRCS})
 source_group("MicrosoftMediaFoundation" FILES ${Mmf_HDRS} ${Mmf_SRCS})
 source_group("VideoForWindows" FILES ${Vfw_HDRS} ${Vfw_SRCS})
 source_group("daVinci" FILES ${daVinci_HDRS} ${daVinci_SRCS})
+source_group("daVinciXi" FILES ${daVinciXi_HDRS} ${daVinciXi_SRCS})
 source_group("StealthLink" FILES ${StealthLink_HDRS} ${StealthLink_SRCS})
 source_group("ICCapturing" FILES ${ICCapturing_HDRS} ${ICCapturing_SRCS})
 source_group("BKProFocus" FILES ${BKProFocus_HDRS} ${BKProFocus_SRCS})
