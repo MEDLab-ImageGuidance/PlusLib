@@ -12,9 +12,13 @@ See License.txt for details.
 
 #include "IntuitiveDaVinciManipulatorXi.h"
 
+#define USM1_JOINT_VALUE 10
+
 //----------------------------------------------------------------------------
 IntuitiveDaVinciManipulatorXi::IntuitiveDaVinciManipulatorXi(ISI_MANIP_INDEX manipIndex)
   : mManipIndex(manipIndex)
+	, DaVinciXi(new IntuitiveDaVinciXi())
+
 {
   if(mManipIndex == ISI_PSM1 || mManipIndex == ISI_PSM2) 
   {
@@ -26,6 +30,11 @@ IntuitiveDaVinciManipulatorXi::IntuitiveDaVinciManipulatorXi(ISI_MANIP_INDEX man
   mTransforms = new ISI_TRANSFORM[7];
   mJointValues = new ISI_FLOAT[mNumJoints];
 
+	// We can change the number of joints with if statements
+	numberOfJoints = (int)USM1_JOINT_VALUE;
+
+	jointValuesArray = new float[numberOfJoints];
+
   LOG_DEBUG("Created da Vinci Xi manipulator.");
 }
 
@@ -35,6 +44,10 @@ IntuitiveDaVinciManipulatorXi::~IntuitiveDaVinciManipulatorXi()
   delete[] mDhTable;
   delete[] mTransforms;
   delete[] mJointValues;
+	delete[] jointValuesArray;
+
+	delete this->DaVinciXi;
+	this->DaVinciXi = nullptr;
 
   mDhTable = nullptr; mTransforms = nullptr; mJointValues = nullptr;
 
@@ -61,6 +74,34 @@ ISI_STATUS IntuitiveDaVinciManipulatorXi::UpdateJointValues()
     LOG_ERROR("Could not update the da Vinci Xi manipulator joint values.");
 
   return status;
+}
+
+//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
+bool IntuitiveDaVinciManipulatorXi::UpdateJointValuesXi()
+{
+	bool status;
+
+	PyObject* pList;
+
+	pList = PyList_New(numberOfJoints);
+	pList = PyObject_CallMethod(this->DaVinciXi->GetPyInstance(), "getUsmJointValues", NULL, "usmType"); // Specify usm type
+
+	if (pList != NULL)
+	{
+		for (int i = 0; i < numberOfJoints; i++)
+		{
+			jointValuesArray[i] = PyLong_AsLong(PyList_GetItem(pList, i));
+		}
+
+		status = true;
+	}
+	else
+	{
+		LOG_ERROR("Could not update the da Vinci Xi manipulator joint values.");
+		status = false;
+	}
+
+	return status;
 }
 
 //----------------------------------------------------------------------------

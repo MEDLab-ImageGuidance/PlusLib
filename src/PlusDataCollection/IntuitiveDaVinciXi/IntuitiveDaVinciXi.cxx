@@ -14,11 +14,11 @@ See License.txt for details.
 
 #include "IntuitiveDaVinciXi.h"
 
-#define USM1_JOINT_VALUE 10
+
 
 //----------------------------------------------------------------------------
 IntuitiveDaVinciXi::IntuitiveDaVinciXi()
-  : mStatus(ISI_SUCCESS)
+  : mStatus(true)
   , mConnected(false)
   , mStreaming(false)
   , mRateHz(60)
@@ -41,11 +41,6 @@ IntuitiveDaVinciXi::IntuitiveDaVinciXi()
   pDict = new PyObject;
   pInstance = new PyObject;
   pValue = new PyObject;
-
-  // We can change the number of joints with if statements
-  numberOfJoints = (int)USM1_JOINT_VALUE;
-
-  jointValuesArray = new float[numberOfJoints];
   
   LOG_DEBUG("Created da Vinci Xi.");
 }
@@ -62,8 +57,7 @@ IntuitiveDaVinciXi::~IntuitiveDaVinciXi()
   delete mViewToWorld, mPsm1BaseToView, mPsm2BaseToView;
   mViewToWorld = nullptr; mPsm1BaseToView = nullptr; mPsm2BaseToView = nullptr;
 
-  Py_DECREF(pName); Py_DECREF(pModule); Py_DECREF(pClass);
-  Py_DECREF(pDict); Py_DECREF(pInstance); Py_DECREF(pValue);
+  
 
   this->StopXi();
   this->DisconnectXi();
@@ -75,6 +69,7 @@ IntuitiveDaVinciXi::~IntuitiveDaVinciXi()
 
   LOG_DEBUG("Destroyed da Vinci Xi.");
 }
+
 /*
 ISI_STATUS IntuitiveDaVinciXi::Connect()
 {
@@ -136,7 +131,7 @@ bool IntuitiveDaVinciXi::ConnectXi()
 	// get the result value
 	pValue = PyObject_CallMethod(pInstance, "connect", NULL, NULL);
 
-	mStatus = PyBool_Check(pValue);
+	mStatus = PyObject_IsTrue(pValue);
 
 	if (mStatus != true)
 	{
@@ -218,7 +213,7 @@ bool IntuitiveDaVinciXi::StartXi()
 
 	mStatus = PyObject_IsTrue(pValue);
 
-	if (mStatus != ISI_SUCCESS)
+	if (mStatus != true)
 	{
 		LOG_ERROR("Could not start da Vinci Xi data stream.");
 		return mStatus;
@@ -327,10 +322,13 @@ void IntuitiveDaVinciXi::DisconnectXi()
 
 	PyObject_CallMethod(pInstance, "disconnect", NULL, NULL);
 
+	Py_DECREF(pName); Py_DECREF(pModule); Py_DECREF(pClass);
+	Py_DECREF(pDict); Py_DECREF(pInstance); Py_DECREF(pValue);
+
 	Py_Finalize();
 	mConnected = false;
 
-	LOG_DEBUG("Disconnected from the da Vinci Xi API.")
+	LOG_DEBUG("Disconnected from the da Vinci Xi API.");
 }
 
 //----------------------------------------------------------------------------
@@ -346,9 +344,9 @@ bool IntuitiveDaVinciXi::IsStreaming() const
 }
 
 //----------------------------------------------------------------------------
-ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValues()
+bool IntuitiveDaVinciXi::UpdateAllJointValues()
 {
-  mStatus = this->mPsm1->UpdateJointValues();
+  mStatus = this->mPsm1->UpdateJointValuesXi();
 
   if (mStatus != ISI_SUCCESS)
   {
@@ -356,7 +354,7 @@ ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValues()
     return mStatus;
   }
 
-  mStatus = this->mPsm2->UpdateJointValues();
+	mStatus = this->mPsm2->UpdateJointValuesXi();
 
   if (mStatus != ISI_SUCCESS)
   {
@@ -364,7 +362,7 @@ ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValues()
     return mStatus;
   }
 
-  mStatus = this->mEcm->UpdateJointValues();
+	mStatus = this->mEcm->UpdateJointValuesXi();
 
   if (mStatus != ISI_SUCCESS)
   {
@@ -373,33 +371,6 @@ ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValues()
   }
 
   return mStatus;
-}
-
-//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
-bool IntuitiveDaVinciXi::UpdateJointValuesXi()
-{
-	bool status;
-
-	PyObject* pList;
-
-	pList = PyList_New(numberOfJoints);
-	pList = PyObject_CallMethod(pInstance, "getUsmJointValues", NULL, "usmType"); // Specify usm type
-
-	if (pList != NULL){
-		for (int i = 0; i < numberOfJoints; i++)
-		{
-			jointValuesArray[i] = PyLong_AsLong(PyList_GetItem(pList, i));
-		}
-
-		status = true;
-	}
-	else
-	{
-		LOG_ERROR("Could not update the da Vinci Xi manipulator joint values.");
-		status = false;
-	}
-	
-	return status;
 }
 
 //----------------------------------------------------------------------------
@@ -566,4 +537,9 @@ IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetPsm2() const
 IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetEcm() const
 {
   return this->mEcm;
+}
+
+PyObject* IntuitiveDaVinciXi::GetPyInstance() const
+{
+	return this->pInstance;
 }

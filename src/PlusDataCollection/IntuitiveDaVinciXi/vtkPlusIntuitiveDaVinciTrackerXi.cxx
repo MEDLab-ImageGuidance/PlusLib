@@ -74,14 +74,14 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
     return PLUS_SUCCESS;
   }
 
-  ISI_STATUS status;
+  bool status;
 
   if (this->DebugSineWaveMode)
-    status = this->DaVinci->ConnectDebugSineWaveMode();
+	  status = this->DaVinci->ConnectDebugSineWaveMode();
   else
-    status = this->DaVinci->Connect();
+	  status = this->DaVinci->ConnectXi();
 
-  if (status != ISI_SUCCESS)
+  if (status != true)
   {
     LOG_ERROR("Failed to connect to da Vinci Xi device.");
     return PLUS_FAIL;
@@ -139,14 +139,14 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalStartRecording()
     return PLUS_FAIL;
   }
   
-  ISI_STATUS status;
+  bool status;
 
   if (this->DebugSineWaveMode)
-    status = this->DaVinci->StartDebugSineWaveMode();
+	  status = this->DaVinci->StartDebugSineWaveMode();
   else
-    status = this->DaVinci->Start();
+	  status = this->DaVinci->StartXi();
 
-  if (status != ISI_SUCCESS)
+  if (status != true)
   {
     LOG_ERROR("InternalStartRecording: Unable to start streaming.");
     return PLUS_FAIL;
@@ -268,7 +268,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalStopRecording()
 {
   // Stop the stream from the da Vinci Xi.
-  this->DaVinci->Stop();
+  this->DaVinci->StopXi();
+
 
   LOG_DEBUG("InternalStartRecording stopped.");
   return PLUS_SUCCESS;
@@ -277,9 +278,9 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalStopRecording()
 //----------------------------------------------------------------------------
 PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalDisconnect()
 {
-  this->DaVinci->Disconnect();
+  this->DaVinci->DisconnectXi();
 
-  LOG_DEBUG("Disconnected from da Vinci Xi device.")
+  LOG_DEBUG("Disconnected from da Vinci Xi device.");
   return PLUS_SUCCESS;
 }
 

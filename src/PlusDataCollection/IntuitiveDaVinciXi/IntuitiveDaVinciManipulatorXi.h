@@ -8,6 +8,9 @@ See License.txt for details.
 #define _INTUITIVE_DAVINCI_MANIPULATORXI_H_
 
 #include "isi_api_types.h"
+#include "IntuitiveDaVinciXi.h"
+
+#include <Python.h>
 
 class IntuitiveDaVinciManipulatorXi
 {
@@ -36,6 +39,9 @@ public:
   /*! Update all of the manipulator joint values using the da Vinci Xi API. */
   ISI_STATUS UpdateJointValues();
 
+	/*! Update all of the manipulator joint values using the da Vinci Xi API. */
+	bool IntuitiveDaVinciManipulatorXi::UpdateJointValuesXi();
+
   /*! Update every link transform of the manipulator even if not associated with a model in slicer. Useful for debugging. */
   ISI_STATUS UpdateLinkTransforms();
 
@@ -63,6 +69,12 @@ protected:
 
   /*! Holds the current joint values of the manipulator. */
   ISI_FLOAT* mJointValues; 
+
+	int numberOfJoints;
+
+	float* jointValuesArray;
+
+	IntuitiveDaVinciXi* DaVinciXi;
 };
 
 #endif

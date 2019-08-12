@@ -66,7 +66,7 @@ public:
   ISI_TRANSFORM* GetEcmBaseToWorld() const;
 
   /*! Update joint values using the da Vinci Xi API for all of the manipulators. */
-  ISI_STATUS UpdateAllJointValues();
+  bool UpdateAllJointValues();
 
   /*! Update all of the manipulator joint values using the da Vinci Xi API - Python. */
   bool UpdateJointValuesXi();
@@ -89,12 +89,15 @@ public:
   /*! Update every transform for each DH row in the kinematic chain. */
   ISI_STATUS UpdateAllKinematicsTransforms();
 
+	/*! Get all of the joint values as a string. */
+	PyObject* GetPyInstance() const;
+
   /*! Copy data from one ISI_TRANSFORM to another. */
   static void CopyIsiTransform(ISI_TRANSFORM* srcTransform, ISI_TRANSFORM* destTransform);
 
 protected:
   /*! Variables for storing the state of the da Vinci Xi API. */
-  ISI_STATUS mStatus; // An integer, error if != 0
+  bool mStatus; // An integer, error if != 0
   bool mConnected;
   bool mStreaming;
   unsigned int mRateHz; // Rate of data streaming from the da Vinci Xi system
@@ -122,9 +125,7 @@ protected:
   PyObject* pInstance;
   PyObject* pValue;
 
-  int numberOfJoints;
 
-  float* jointValuesArray;
 };
 
 #endif
