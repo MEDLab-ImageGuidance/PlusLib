@@ -14,6 +14,8 @@ See License.txt for details.
 
 #include "IntuitiveDaVinciXi.h"
 
+#define USM1_JOINT_VALUE 10
+
 //----------------------------------------------------------------------------
 IntuitiveDaVinciXi::IntuitiveDaVinciXi()
   : mStatus(ISI_SUCCESS)
@@ -33,6 +35,18 @@ IntuitiveDaVinciXi::IntuitiveDaVinciXi()
   mPsm1BaseToView = new ISI_TRANSFORM;
   mPsm2BaseToView = new ISI_TRANSFORM;
 
+  pName = new PyObject;
+  pModule = new PyObject;
+  pClass = new PyObject;
+  pDict = new PyObject;
+  pInstance = new PyObject;
+  pValue = new PyObject;
+
+  // We can change the number of joints with if statements
+  numberOfJoints = (int)USM1_JOINT_VALUE;
+
+  jointValuesArray = new float[numberOfJoints];
+  
   LOG_DEBUG("Created da Vinci Xi.");
 }
 
@@ -48,13 +62,20 @@ IntuitiveDaVinciXi::~IntuitiveDaVinciXi()
   delete mViewToWorld, mPsm1BaseToView, mPsm2BaseToView;
   mViewToWorld = nullptr; mPsm1BaseToView = nullptr; mPsm2BaseToView = nullptr;
 
+  Py_DECREF(pName); Py_DECREF(pModule); Py_DECREF(pClass);
+  Py_DECREF(pDict); Py_DECREF(pInstance); Py_DECREF(pValue);
+
+  this->StopXi();
+  this->DisconnectXi();
+
+  /*
   this->Stop();
   this->Disconnect();
+  */
 
   LOG_DEBUG("Destroyed da Vinci Xi.");
 }
-
-//----------------------------------------------------------------------------
+/*
 ISI_STATUS IntuitiveDaVinciXi::Connect()
 {
   LOG_DEBUG("Connecting to da Vinci Xi API.");
@@ -83,6 +104,50 @@ ISI_STATUS IntuitiveDaVinciXi::Connect()
   LOG_INFO("Connected to da Vinci system.");
   return mStatus;
 }
+*/
+
+//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
+bool IntuitiveDaVinciXi::ConnectXi()
+{
+	LOG_DEBUG("Connecting to da Vinci Xi API.");
+
+	if (this->IsConnected())
+	{
+		LOG_WARNING("Cannot connect to da Vinci Xi API because already connected.");
+		return mStatus;
+	}
+
+	if (this->IsStreaming())
+	{
+		LOG_WARNING("Cannot connect to da Vinci Xi API because currently streaming data from it.");
+		return mStatus;
+	}
+
+	Py_Initialize();
+
+	pName = PyUnicode_DecodeFSDefault("DaVinciXiApi");
+	pModule = PyImport_Import(pName);
+
+	// get the class 
+	pDict = PyModule_GetDict(pModule);
+	pClass = PyDict_GetItemString(pDict, "DaVinciXiApi");
+	pInstance = PyObject_CallObject(pClass, NULL);
+
+	// get the result value
+	pValue = PyObject_CallMethod(pInstance, "connect", NULL, NULL);
+
+	mStatus = PyBool_Check(pValue);
+
+	if (mStatus != true)
+	{
+		LOG_ERROR("Could not connect to da Vinci Xi system.");
+		return mStatus;
+	}
+
+	mConnected = true;
+	LOG_INFO("Connected to da Vinci system.");
+	return mStatus;
+}
 
 //----------------------------------------------------------------------------
 ISI_STATUS IntuitiveDaVinciXi::ConnectDebugSineWaveMode()
@@ -92,7 +157,7 @@ ISI_STATUS IntuitiveDaVinciXi::ConnectDebugSineWaveMode()
   return mStatus;
 }
 
-//----------------------------------------------------------------------------
+/*
 ISI_STATUS IntuitiveDaVinciXi::Start()
 {
   LOG_DEBUG("Starting data stream from da Vinci Xi API.");
@@ -129,6 +194,41 @@ ISI_STATUS IntuitiveDaVinciXi::Start()
   LOG_DEBUG("Data stream started.");
   return mStatus;
 }
+*/
+
+//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
+bool IntuitiveDaVinciXi::StartXi()
+{
+	LOG_DEBUG("Starting data stream from da Vinci Xi API.");
+
+	if (this->IsStreaming())
+	{
+		LOG_WARNING("Will not attempt to start streaming because da Vinci Xi API already streaming.");
+		return mStatus;
+	}
+
+	if (!this->IsConnected())
+	{
+		LOG_WARNING("Not connected, so cannot start streaming.");
+		return mStatus;
+	}
+
+	// get the result value
+	pValue = PyObject_CallMethod(pInstance, "startStream", NULL, mRateHz);
+
+	mStatus = PyObject_IsTrue(pValue);
+
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Could not start da Vinci Xi data stream.");
+		return mStatus;
+	}
+
+	mStreaming = true;
+	LOG_DEBUG("Data stream started.");
+	return mStatus;
+
+}
 
 //----------------------------------------------------------------------------
 ISI_STATUS IntuitiveDaVinciXi::StartDebugSineWaveMode()
@@ -138,7 +238,7 @@ ISI_STATUS IntuitiveDaVinciXi::StartDebugSineWaveMode()
   return mStatus;
 }
 
-//----------------------------------------------------------------------------
+/*
 void IntuitiveDaVinciXi::Stop()
 {
   LOG_DEBUG("Stopping data stream from da Vinci Xi API.");
@@ -160,8 +260,33 @@ void IntuitiveDaVinciXi::Stop()
   mStreaming = false;
   LOG_DEBUG("Streaming from the da Vinci Xi API stopped.");
 }
+*/
 
-//----------------------------------------------------------------------------
+//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
+void IntuitiveDaVinciXi::StopXi()
+{
+	LOG_DEBUG("Stopping data stream from da Vinci Xi API.");
+
+	if (this->IsConnected())
+	{
+		LOG_WARNING("Cannot stop da Vinci Xi stream until disconnected.");
+		return;
+	}
+
+	if (!this->IsStreaming())
+	{
+		LOG_WARNING("Stop called, but da Vinci Xi is already stopped.");
+		return;
+	}
+
+	PyObject_CallMethod(pInstance, "stopStream", NULL, NULL);
+
+	mStreaming = false;
+	LOG_DEBUG("Streaming from the da Vinci Xi API stopped.");
+
+}
+
+/*
 void IntuitiveDaVinciXi::Disconnect()
 {
   // check if system is connected
@@ -181,6 +306,31 @@ void IntuitiveDaVinciXi::Disconnect()
 
   mConnected = false;
   LOG_DEBUG("Disconnected from the da Vinci Xi API.")
+}
+*/
+
+//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
+void IntuitiveDaVinciXi::DisconnectXi()
+{
+	// check if system is connected
+	if (!this->IsConnected())
+	{
+		LOG_WARNING("Disconnect cannot be called because not connected.");
+		return;
+	}
+
+	if (this->IsStreaming())
+	{
+		LOG_WARNING("You must stop streaming before attempting to disconnect.");
+		return;
+	}
+
+	PyObject_CallMethod(pInstance, "disconnect", NULL, NULL);
+
+	Py_Finalize();
+	mConnected = false;
+
+	LOG_DEBUG("Disconnected from the da Vinci Xi API.")
 }
 
 //----------------------------------------------------------------------------
@@ -223,6 +373,33 @@ ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValues()
   }
 
   return mStatus;
+}
+
+//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
+bool IntuitiveDaVinciXi::UpdateJointValuesXi()
+{
+	bool status;
+
+	PyObject* pList;
+
+	pList = PyList_New(numberOfJoints);
+	pList = PyObject_CallMethod(pInstance, "getUsmJointValues", NULL, "usmType"); // Specify usm type
+
+	if (pList != NULL){
+		for (int i = 0; i < numberOfJoints; i++)
+		{
+			jointValuesArray[i] = PyLong_AsLong(PyList_GetItem(pList, i));
+		}
+
+		status = true;
+	}
+	else
+	{
+		LOG_ERROR("Could not update the da Vinci Xi manipulator joint values.");
+		status = false;
+	}
+	
+	return status;
 }
 
 //----------------------------------------------------------------------------

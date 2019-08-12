@@ -10,8 +10,6 @@ See License.txt for details.
 #include "dv_api.h"
 #include "dv_api_math.h"
 
-#include <Python.h>
-
 #include "IntuitiveDaVinciManipulatorXi.h"
 
 //----------------------------------------------------------------------------
@@ -28,8 +26,6 @@ IntuitiveDaVinciManipulatorXi::IntuitiveDaVinciManipulatorXi(ISI_MANIP_INDEX man
   mTransforms = new ISI_TRANSFORM[7];
   mJointValues = new ISI_FLOAT[mNumJoints];
 
-  Py_Initialize();
-
   LOG_DEBUG("Created da Vinci Xi manipulator.");
 }
 
@@ -41,8 +37,6 @@ IntuitiveDaVinciManipulatorXi::~IntuitiveDaVinciManipulatorXi()
   delete[] mJointValues;
 
   mDhTable = nullptr; mTransforms = nullptr; mJointValues = nullptr;
-
-  Py_Finalize();
 
   LOG_DEBUG("Destroyed da Vinci Xi manipulator.");
 }

@@ -12,6 +12,8 @@ See License.txt for details.
 
 #include "isi_api_types.h"
 
+#include <Python.h>
+
 class IntuitiveDaVinciXi
 {
 public:
@@ -21,19 +23,31 @@ public:
   /*! Destructor. */
   ~IntuitiveDaVinciXi();
 
-  /*! Start streaming from the da Vinci Xi API system */
+  /*! Start streaming from the da Vinci API system */
   ISI_STATUS Start();
   ISI_STATUS StartDebugSineWaveMode();
 
+  /*! Start streaming from the da Vinci Xi API - Python system  */
+  bool StartXi();
+
   /*! Stop streaming */
   void Stop();
+
+  /*! Stop streaming da Vinci Xi - Python*/
+  void StopXi();
 
   /*! Make a request to connect to the da Vinci */
   ISI_STATUS Connect();
   ISI_STATUS ConnectDebugSineWaveMode();
 
+  /*! Make a request to connect to da Vinci Xi */
+  bool ConnectXi();
+
   /*! Make a request to disconnect from the da Vinci Xi */
   void Disconnect();
+
+  /*! Make a request to disconnect from the da Vinci Xi - Python */
+  void DisconnectXi();
 
   /*! Accessor for connected state. */
   bool IsConnected() const;
@@ -53,6 +67,9 @@ public:
 
   /*! Update joint values using the da Vinci Xi API for all of the manipulators. */
   ISI_STATUS UpdateAllJointValues();
+
+  /*! Update all of the manipulator joint values using the da Vinci Xi API - Python. */
+  bool UpdateJointValuesXi();
 
   /*! Update joint values using sine functions for debugging purposes. */
   ISI_STATUS UpdateAllJointValuesSineWave();
@@ -96,6 +113,18 @@ protected:
   ISI_TRANSFORM* mViewToWorld;
   ISI_TRANSFORM* mPsm1BaseToView;
   ISI_TRANSFORM* mPsm2BaseToView;
+
+  /*! Python object to run Python scripts. */
+  PyObject* pName;
+  PyObject* pModule;
+  PyObject* pDict;
+  PyObject* pClass;
+  PyObject* pInstance;
+  PyObject* pValue;
+
+  int numberOfJoints;
+
+  float* jointValuesArray;
 };
 
 #endif
