@@ -8,6 +8,7 @@ See License.txt for details.
 #define _INTUITIVE_DAVINCI_MANIPULATORXI_H_
 
 #include "isi_api_types.h"
+#include "ixi_api_types.h"
 
 #include <Python.h>
 
@@ -15,7 +16,7 @@ class IntuitiveDaVinciManipulatorXi
 {
 public:
   /*! Constructor. */
-  IntuitiveDaVinciManipulatorXi(ISI_MANIP_INDEX manipIndex);
+  IntuitiveDaVinciManipulatorXi(IXI_MANIP_INDEX manipIndex);
 
   /*! Destructor. */
   ~IntuitiveDaVinciManipulatorXi();
@@ -38,10 +39,7 @@ public:
   /*! Update all of the manipulator joint values using the da Vinci Xi API. */
   ISI_STATUS UpdateJointValues();
 
-	/*! Update all of the manipulator joint values using the da Vinci Xi API. */
-	bool IntuitiveDaVinciManipulatorXi::UpdateJointValuesXi();
-
-  /*! Update every link transform of the manipulator even if not associated with a model in slicer. Useful for debugging. */
+	/*! Update every link transform of the manipulator even if not associated with a model in slicer. Useful for debugging. */
   ISI_STATUS UpdateLinkTransforms();
 
   /*! Set the robot DH table (used by the xml parser). */
@@ -55,7 +53,7 @@ public:
 
 protected:
   /*! The type of manipulator. Either ISI_ECM, ISI_PSM1, or ISI_PSM2. */
-  ISI_MANIP_INDEX mManipIndex; 
+  IXI_MANIP_INDEX mManipIndex; 
 
   /*! How many joints variables the manipulator has. Either ISI_NUM_ECM_JOINTS or ISI_NUM_PSM_JOINTS. */
   int mNumJoints;
@@ -70,8 +68,6 @@ protected:
   ISI_FLOAT* mJointValues; 
 
 	int numberOfJoints;
-
-	float* jointValuesArray;
 
 	/*! Python object to run Python scripts. */
 	PyObject* pName;

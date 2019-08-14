@@ -74,76 +74,135 @@ private:
   static inline void ConvertIsiTransformToVtkMatrix(ISI_TRANSFORM* isiMatrix, vtkMatrix4x4& vtkMatrix);
 
   /*! From three strings (likely obtained from the xml), set the robot DH tables. */
-  PlusStatus SetDhTablesFromStrings(std::string psm1DhTable, std::string psm2DhTable, std::string ecmDhTable);
+	PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, std::string usm3DhTable
+		,std::string usm4DhTable, std::string ecmDhTable);
 
 private:
   /*************** ROBOT JOINT VALUES ***************/
 
-  /*! The 7 joint values of PSM1 stored and broadcasted in the first 7 elements of a matrix. */
-  vtkPlusDataSource* psm1Joints;
+  /*! The 7 joint values of USM1 stored and broadcasted in the first 7 elements of a matrix. */
+  vtkPlusDataSource* usm1Joints;
 
-  /*! The 7 joint values of PSM2 stored and broadcasted in the first 7 elements of a matrix. */
-  vtkPlusDataSource* psm2Joints;
+  /*! The 7 joint values of USM2 stored and broadcasted in the first 7 elements of a matrix. */
+  vtkPlusDataSource* usm2Joints;
+
+	/*! The 7 joint values of USM3 stored and broadcasted in the first 7 elements of a matrix. */
+	vtkPlusDataSource* usm3Joints;
+
+	/*! The 7 joint values of USM4 stored and broadcasted in the first 7 elements of a matrix. */
+	vtkPlusDataSource* usm4Joints;
 
   /*! The 7 joint values of ECM stored and broadcasted in the first 4 elements of a matrix. */
   vtkPlusDataSource* ecmJoints;
 
   /*************** ROBOT BASE TRANSFORMS ***************/
 
-  /*! Transform from PSM1 Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* psm1Base;
+  /*! Transform from USM1 Base frame to the da Vinci world frame. */
+  vtkPlusDataSource* usm1Base;
 
-  /*! Transform from PSM2 Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* psm2Base;
+  /*! Transform from USM2 Base frame to the da Vinci world frame. */
+  vtkPlusDataSource* usm2Base;
+
+	/*! Transform from USM3 Base frame to the da Vinci world frame. */
+	vtkPlusDataSource* usm3Base;
+
+	/*! Transform from USM4 Base frame to the da Vinci world frame. */
+	vtkPlusDataSource* usm4Base;
 
   /*! Transform from ECM Base frame to the da Vinci world frame. */
   vtkPlusDataSource* ecmBase;
 
-  /*************** PSM1 LINK TRANSFORMS ***************/
+  /*************** USM1 LINK TRANSFORMS ***************/
 
-  /*! Transform from Frame1 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame1;
+  /*! Transform from Frame1 of USM1 to USM1 Base. */
+  vtkPlusDataSource* usm1Frame1;
 
-  /*! Transform from Frame2 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame2;
+  /*! Transform from Frame2 of USM1 to USM1 Base. */
+  vtkPlusDataSource* usm1Frame2;
 
-  /*! Transform from Frame3 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame3;
+  /*! Transform from Frame3 of USM1 to USM1 Base. */
+  vtkPlusDataSource* usm1Frame3;
 
-  /*! Transform from Frame4 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame4;
+  /*! Transform from Frame4 of USM1 to USM1 Base. */
+  vtkPlusDataSource* usm1Frame4;
 
-  /*! Transform from Frame5 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame5;
+  /*! Transform from Frame5 of USM1 to USM1 Base. */
+  vtkPlusDataSource* usm1Frame5;
 
-  /*! Transform from Frame6 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame6;
+  /*! Transform from Frame6 of USM1 to USM1 Base. */
+  vtkPlusDataSource* usm1Frame6;
 
-  /*! Transform from Frame7 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame7;
+  /*! Transform from Frame7 of USM1 to USM1 Base. */
+  vtkPlusDataSource* usm1Frame7;
 
-  /*************** PSM2 LINK TRANSFORMS ***************/
+  /*************** USM2 LINK TRANSFORMS ***************/
 
-  /*! Transform from Frame1 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame1;
+  /*! Transform from Frame1 of USM2 to USM2 Base. */
+  vtkPlusDataSource* usm2Frame1;
 
-  /*! Transform from Frame2 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame2;
+  /*! Transform from Frame2 of USM2 to USM2 Base. */
+  vtkPlusDataSource* usm2Frame2;
 
-  /*! Transform from Frame3 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame3;
+  /*! Transform from Frame3 of USM2 to USM2 Base. */
+  vtkPlusDataSource* usm2Frame3;
 
-  /*! Transform from Frame4 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame4;
+  /*! Transform from Frame4 of USM2 to USM2 Base. */
+  vtkPlusDataSource* usm2Frame4;
 
-  /*! Transform from Frame5 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame5;
+  /*! Transform from Frame5 of USM2 to USM2 Base. */
+  vtkPlusDataSource* usm2Frame5;
 
-  /*! Transform from Frame6 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame6;
+  /*! Transform from Frame6 of USM2 to USM2 Base. */
+  vtkPlusDataSource* usm2Frame6;
 
-  /*! Transform from Frame7 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame7;
+  /*! Transform from Frame7 of USM2 to USM2 Base. */
+  vtkPlusDataSource* usm2Frame7;
+
+	/*************** USM3 LINK TRANSFORMS ***************/
+
+	/*! Transform from Frame1 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame1;
+
+	/*! Transform from Frame2 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame2;
+
+	/*! Transform from Frame3 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame3;
+
+	/*! Transform from Frame4 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame4;
+
+	/*! Transform from Frame5 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame5;
+
+	/*! Transform from Frame6 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame6;
+
+	/*! Transform from Frame7 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame7;
+
+	/*************** USM4 LINK TRANSFORMS ***************/
+
+	/*! Transform from Frame1 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame1;
+
+	/*! Transform from Frame2 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame2;
+
+	/*! Transform from Frame3 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame3;
+
+	/*! Transform from Frame4 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame4;
+
+	/*! Transform from Frame5 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame5;
+
+	/*! Transform from Frame6 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame6;
+
+	/*! Transform from Frame7 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame7;
 
   /*************** ECM LINK TRANSFORMS ***************/
 

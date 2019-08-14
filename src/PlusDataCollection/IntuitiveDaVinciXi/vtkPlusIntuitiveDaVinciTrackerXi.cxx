@@ -24,10 +24,12 @@ vtkPlusIntuitiveDaVinciTrackerXi::vtkPlusIntuitiveDaVinciTrackerXi()
   , DaVinci(new IntuitiveDaVinciXi())
   , LastFrameNumber(0)
   , DebugSineWaveMode(false)
-  , psm1Joints(NULL), psm2Joints(NULL), ecmJoints(NULL)
-  , psm1Base(NULL),   psm2Base(NULL),   ecmBase(NULL)
-  , psm1Frame1(NULL), psm1Frame2(NULL), psm1Frame3(NULL), psm1Frame4(NULL), psm1Frame5(NULL), psm1Frame6(NULL), psm1Frame7(NULL)
-  , psm2Frame1(NULL), psm2Frame2(NULL), psm2Frame3(NULL), psm2Frame4(NULL), psm2Frame5(NULL), psm2Frame6(NULL), psm2Frame7(NULL)
+	, usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL), ecmJoints(NULL)
+	, usm1Base(NULL), usm2Base(NULL), usm3Base(NULL), usm4Base(NULL), ecmBase(NULL)
+  , usm1Frame1(NULL), usm1Frame2(NULL), usm1Frame3(NULL), usm1Frame4(NULL), usm1Frame5(NULL), usm1Frame6(NULL), usm1Frame7(NULL)
+  , usm2Frame1(NULL), usm2Frame2(NULL), usm2Frame3(NULL), usm2Frame4(NULL), usm2Frame5(NULL), usm2Frame6(NULL), usm2Frame7(NULL)
+	, usm3Frame1(NULL), usm3Frame2(NULL), usm3Frame3(NULL), usm3Frame4(NULL), usm3Frame5(NULL), usm3Frame6(NULL), usm3Frame7(NULL)
+	, usm4Frame1(NULL), usm4Frame2(NULL), usm4Frame3(NULL), usm4Frame4(NULL), usm4Frame5(NULL), usm4Frame6(NULL), usm4Frame7(NULL)
   , ecmFrame1(NULL),  ecmFrame2(NULL),  ecmFrame3(NULL),  ecmFrame4(NULL),  ecmFrame5(NULL),  ecmFrame6(NULL),  ecmFrame7(NULL)
 {
   this->StartThreadForInternalUpdates = true; // Want a dedicated thread
@@ -74,42 +76,62 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
     return PLUS_SUCCESS;
   }
 
-  bool status;
+  ISI_STATUS status;
 
-  if (this->DebugSineWaveMode)
-	  status = this->DaVinci->ConnectDebugSineWaveMode();
-  else
-	  status = this->DaVinci->ConnectXi();
+	if (this->DebugSineWaveMode)
+		status = this->DaVinci->ConnectDebugSineWaveMode();
+	else
+		status = this->DaVinci->Connect();
 
-  if (status != true)
+  if (status != ISI_SUCCESS)
   {
     LOG_ERROR("Failed to connect to da Vinci Xi device.");
     return PLUS_FAIL;
   }
 
-  GetToolByPortName("psm1Joints", this->psm1Joints);
-  GetToolByPortName("psm2Joints", this->psm2Joints);
+  GetToolByPortName("usm1Joints", this->usm1Joints);
+  GetToolByPortName("usm2Joints", this->usm2Joints);
+	GetToolByPortName("usm3Joints", this->usm3Joints);
+	GetToolByPortName("usm4Joints", this->usm4Joints);
   GetToolByPortName("ecmJoints", this->ecmJoints);
 
-  GetToolByPortName("psm1Base", this->psm1Base);
-  GetToolByPortName("psm2Base", this->psm2Base);
+  GetToolByPortName("usm1Base", this->usm1Base);
+  GetToolByPortName("usm2Base", this->usm2Base);
+	GetToolByPortName("usm3Base", this->usm3Base);
+	GetToolByPortName("usm4Base", this->usm4Base);
   GetToolByPortName("ecmBase", this->ecmBase);
 
-  GetToolByPortName("psm1Frame1", this->psm1Frame1);
-  GetToolByPortName("psm1Frame2", this->psm1Frame2);
-  GetToolByPortName("psm1Frame3", this->psm1Frame3);
-  GetToolByPortName("psm1Frame4", this->psm1Frame4);
-  GetToolByPortName("psm1Frame5", this->psm1Frame5);
-  GetToolByPortName("psm1Frame6", this->psm1Frame6);
-  GetToolByPortName("psm1Frame7", this->psm1Frame7);
+  GetToolByPortName("usm1Frame1", this->usm1Frame1);
+  GetToolByPortName("usm1Frame2", this->usm1Frame2);
+  GetToolByPortName("usm1Frame3", this->usm1Frame3);
+  GetToolByPortName("usm1Frame4", this->usm1Frame4);
+  GetToolByPortName("usm1Frame5", this->usm1Frame5);
+  GetToolByPortName("usm1Frame6", this->usm1Frame6);
+  GetToolByPortName("usm1Frame7", this->usm1Frame7);
 
-  GetToolByPortName("psm2Frame1", this->psm2Frame1);
-  GetToolByPortName("psm2Frame2", this->psm2Frame2);
-  GetToolByPortName("psm2Frame3", this->psm2Frame3);
-  GetToolByPortName("psm2Frame4", this->psm2Frame4);
-  GetToolByPortName("psm2Frame5", this->psm2Frame5);
-  GetToolByPortName("psm2Frame6", this->psm2Frame6);
-  GetToolByPortName("psm2Frame7", this->psm2Frame7);
+  GetToolByPortName("usm2Frame1", this->usm2Frame1);
+  GetToolByPortName("usm2Frame2", this->usm2Frame2);
+  GetToolByPortName("usm2Frame3", this->usm2Frame3);
+  GetToolByPortName("usm2Frame4", this->usm2Frame4);
+  GetToolByPortName("usm2Frame5", this->usm2Frame5);
+  GetToolByPortName("usm2Frame6", this->usm2Frame6);
+  GetToolByPortName("usm2Frame7", this->usm2Frame7);
+
+	GetToolByPortName("usm3Frame1", this->usm3Frame1);
+	GetToolByPortName("usm3Frame2", this->usm3Frame2);
+	GetToolByPortName("usm3Frame3", this->usm3Frame3);
+	GetToolByPortName("usm3Frame4", this->usm3Frame4);
+	GetToolByPortName("usm3Frame5", this->usm3Frame5);
+	GetToolByPortName("usm3Frame6", this->usm3Frame6);
+	GetToolByPortName("usm3Frame7", this->usm3Frame7);
+
+	GetToolByPortName("usm4Frame1", this->usm4Frame1);
+	GetToolByPortName("usm4Frame2", this->usm4Frame2);
+	GetToolByPortName("usm4Frame3", this->usm4Frame3);
+	GetToolByPortName("usm4Frame4", this->usm4Frame4);
+	GetToolByPortName("usm4Frame5", this->usm4Frame5);
+	GetToolByPortName("usm4Frame6", this->usm4Frame6);
+	GetToolByPortName("usm4Frame7", this->usm4Frame7);
 
   GetToolByPortName("ecmFrame1", this->ecmFrame1);
   GetToolByPortName("ecmFrame2", this->ecmFrame2);
@@ -139,12 +161,12 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalStartRecording()
     return PLUS_FAIL;
   }
   
-  bool status;
+  ISI_STATUS status;
 
-  if (this->DebugSineWaveMode)
-	  status = this->DaVinci->StartDebugSineWaveMode();
-  else
-	  status = this->DaVinci->StartXi();
+	if (this->DebugSineWaveMode)
+		status = this->DaVinci->StartDebugSineWaveMode();
+	else
+		status = this->DaVinci->Start();
 
   if (status != true)
   {
@@ -190,7 +212,7 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
   // Update all of the manipulator joint values
   ISI_FLOAT* jointValues;
 
-  jointValues = this->DaVinci->GetPsm1()->GetJointValues();
+	jointValues = this->DaVinci->GetUsm1()->GetJointValues();
   tmpVtkMatrix->Identity();
   tmpVtkMatrix->SetElement(0, 0, jointValues[0]);
   tmpVtkMatrix->SetElement(0, 1, jointValues[1]);
@@ -199,10 +221,10 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
   tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
   tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
   tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
-  unsigned long frameNumber = psm1Joints->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(psm1Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+  unsigned long frameNumber = usm1Joints->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
-  jointValues = this->DaVinci->GetPsm2()->GetJointValues();
+  jointValues = this->DaVinci->GetUsm2()->GetJointValues();
   tmpVtkMatrix->Identity();
   tmpVtkMatrix->SetElement(0, 0, jointValues[0]);
   tmpVtkMatrix->SetElement(0, 1, jointValues[1]);
@@ -211,8 +233,32 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
   tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
   tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
   tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
-  frameNumber = psm2Joints->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(psm2Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm2Joints->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+
+	jointValues = this->DaVinci->GetUsm3()->GetJointValues();
+	tmpVtkMatrix->Identity();
+	tmpVtkMatrix->SetElement(0, 0, jointValues[0]);
+	tmpVtkMatrix->SetElement(0, 1, jointValues[1]);
+	tmpVtkMatrix->SetElement(0, 2, jointValues[2]);
+	tmpVtkMatrix->SetElement(0, 3, jointValues[3]);
+	tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
+	tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
+	tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
+	frameNumber = usm3Joints->GetFrameNumber() + 1;
+	ToolTimeStampedUpdate(usm3Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+
+	jointValues = this->DaVinci->GetUsm4()->GetJointValues();
+	tmpVtkMatrix->Identity();
+	tmpVtkMatrix->SetElement(0, 0, jointValues[0]);
+	tmpVtkMatrix->SetElement(0, 1, jointValues[1]);
+	tmpVtkMatrix->SetElement(0, 2, jointValues[2]);
+	tmpVtkMatrix->SetElement(0, 3, jointValues[3]);
+	tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
+	tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
+	tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
+	frameNumber = usm4Joints->GetFrameNumber() + 1;
+	ToolTimeStampedUpdate(usm4Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
   jointValues = this->DaVinci->GetEcm()->GetJointValues();
   tmpVtkMatrix->Identity();
@@ -224,31 +270,55 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
   ToolTimeStampedUpdate(ecmJoints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
   // Update all of the manipulator base frames
-  PUBLISH_ISI_TRANSFORM(psm1Base, this->DaVinci->GetPsm1BaseToWorld());
-  PUBLISH_ISI_TRANSFORM(psm2Base, this->DaVinci->GetPsm2BaseToWorld());
+  PUBLISH_ISI_TRANSFORM(usm1Base, this->DaVinci->GetUsm1BaseToWorld());
+  PUBLISH_ISI_TRANSFORM(usm2Base, this->DaVinci->GetUsm2BaseToWorld());
+	PUBLISH_ISI_TRANSFORM(usm3Base, this->DaVinci->GetUsm3BaseToWorld());
+	PUBLISH_ISI_TRANSFORM(usm4Base, this->DaVinci->GetUsm4BaseToWorld());
   PUBLISH_ISI_TRANSFORM(ecmBase, this->DaVinci->GetEcmBaseToWorld());
 
-  // Update all of the psm1Frames
-  ISI_TRANSFORM* psm1Transforms = this->DaVinci->GetPsm1()->GetTransforms();
+  // Update all of the usm1Frames
+  ISI_TRANSFORM* usm1Transforms = this->DaVinci->GetUsm1()->GetTransforms();
 
-  PUBLISH_ISI_TRANSFORM(psm1Frame1, psm1Transforms + 0);
-  PUBLISH_ISI_TRANSFORM(psm1Frame2, psm1Transforms + 1);
-  PUBLISH_ISI_TRANSFORM(psm1Frame3, psm1Transforms + 2);
-  PUBLISH_ISI_TRANSFORM(psm1Frame4, psm1Transforms + 3);
-  PUBLISH_ISI_TRANSFORM(psm1Frame5, psm1Transforms + 4);
-  PUBLISH_ISI_TRANSFORM(psm1Frame6, psm1Transforms + 5);
-  PUBLISH_ISI_TRANSFORM(psm1Frame7, psm1Transforms + 6);
+	PUBLISH_ISI_TRANSFORM(usm1Frame1, usm1Transforms + 0);
+	PUBLISH_ISI_TRANSFORM(usm1Frame2, usm1Transforms + 1);
+	PUBLISH_ISI_TRANSFORM(usm1Frame3, usm1Transforms + 2);
+	PUBLISH_ISI_TRANSFORM(usm1Frame4, usm1Transforms + 3);
+	PUBLISH_ISI_TRANSFORM(usm1Frame5, usm1Transforms + 4);
+	PUBLISH_ISI_TRANSFORM(usm1Frame6, usm1Transforms + 5);
+	PUBLISH_ISI_TRANSFORM(usm1Frame7, usm1Transforms + 6);
 
-  // Update all of the psm2Frames
-  ISI_TRANSFORM* psm2Transforms = this->DaVinci->GetPsm2()->GetTransforms();
+  // Update all of the usm2Frames
+	ISI_TRANSFORM* usm2Transforms = this->DaVinci->GetUsm2()->GetTransforms();
 
-  PUBLISH_ISI_TRANSFORM(psm2Frame1, psm2Transforms + 0);
-  PUBLISH_ISI_TRANSFORM(psm2Frame2, psm2Transforms + 1);
-  PUBLISH_ISI_TRANSFORM(psm2Frame3, psm2Transforms + 2);
-  PUBLISH_ISI_TRANSFORM(psm2Frame4, psm2Transforms + 3);
-  PUBLISH_ISI_TRANSFORM(psm2Frame5, psm2Transforms + 4);
-  PUBLISH_ISI_TRANSFORM(psm2Frame6, psm2Transforms + 5);
-  PUBLISH_ISI_TRANSFORM(psm2Frame7, psm2Transforms + 6);
+	PUBLISH_ISI_TRANSFORM(usm2Frame1, usm2Transforms + 0);
+	PUBLISH_ISI_TRANSFORM(usm2Frame2, usm2Transforms + 1);
+	PUBLISH_ISI_TRANSFORM(usm2Frame3, usm2Transforms + 2);
+	PUBLISH_ISI_TRANSFORM(usm2Frame4, usm2Transforms + 3);
+	PUBLISH_ISI_TRANSFORM(usm2Frame5, usm2Transforms + 4);
+	PUBLISH_ISI_TRANSFORM(usm2Frame6, usm2Transforms + 5);
+	PUBLISH_ISI_TRANSFORM(usm2Frame7, usm2Transforms + 6);
+
+	// Update all of the usm2Frames
+	ISI_TRANSFORM* usm3Transforms = this->DaVinci->GetUsm3()->GetTransforms();
+
+	PUBLISH_ISI_TRANSFORM(usm3Frame1, usm3Transforms + 0);
+	PUBLISH_ISI_TRANSFORM(usm3Frame2, usm3Transforms + 1);
+	PUBLISH_ISI_TRANSFORM(usm3Frame3, usm3Transforms + 2);
+	PUBLISH_ISI_TRANSFORM(usm3Frame4, usm3Transforms + 3);
+	PUBLISH_ISI_TRANSFORM(usm3Frame5, usm3Transforms + 4);
+	PUBLISH_ISI_TRANSFORM(usm3Frame6, usm3Transforms + 5);
+	PUBLISH_ISI_TRANSFORM(usm3Frame7, usm3Transforms + 6);
+
+	// Update all of the usm2Frames
+	ISI_TRANSFORM* usm4Transforms = this->DaVinci->GetUsm4()->GetTransforms();
+
+	PUBLISH_ISI_TRANSFORM(usm4Frame1, usm4Transforms + 0);
+	PUBLISH_ISI_TRANSFORM(usm4Frame2, usm4Transforms + 1);
+	PUBLISH_ISI_TRANSFORM(usm4Frame3, usm4Transforms + 2);
+	PUBLISH_ISI_TRANSFORM(usm4Frame4, usm4Transforms + 3);
+	PUBLISH_ISI_TRANSFORM(usm4Frame5, usm4Transforms + 4);
+	PUBLISH_ISI_TRANSFORM(usm4Frame6, usm4Transforms + 5);
+	PUBLISH_ISI_TRANSFORM(usm4Frame7, usm4Transforms + 6);
 
   // Update all of the ecmFrames
   ISI_TRANSFORM* ecmTransforms = this->DaVinci->GetEcm()->GetTransforms();
@@ -268,8 +338,7 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalStopRecording()
 {
   // Stop the stream from the da Vinci Xi.
-  this->DaVinci->StopXi();
-
+	this->DaVinci->Stop();
 
   LOG_DEBUG("InternalStartRecording stopped.");
   return PLUS_SUCCESS;
@@ -278,7 +347,7 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalStopRecording()
 //----------------------------------------------------------------------------
 PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalDisconnect()
 {
-  this->DaVinci->DisconnectXi();
+	this->DaVinci->Disconnect();
 
   LOG_DEBUG("Disconnected from da Vinci Xi device.");
   return PLUS_SUCCESS;
@@ -294,15 +363,19 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::ReadConfiguration(vtkXMLDataElement
   XML_READ_SCALAR_ATTRIBUTE_WARNING(int, AcquisitionRate, deviceConfig); 
   XML_READ_BOOL_ATTRIBUTE_OPTIONAL(DebugSineWaveMode, deviceConfig);
 
-  std::string psm1DhTable;
-  std::string psm2DhTable;
+  std::string usm1DhTable;
+  std::string usm2DhTable;
+	std::string usm3DhTable;
+	std::string usm4DhTable;
   std::string ecmDhTable;
 
-  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Psm1DhTable, psm1DhTable, deviceConfig);
-  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Psm2DhTable, psm2DhTable, deviceConfig);
+  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm1DhTable, usm1DhTable, deviceConfig);
+  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm2DhTable, usm2DhTable, deviceConfig);
+	XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm3DhTable, usm3DhTable, deviceConfig);
+	XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm4DhTable, usm4DhTable, deviceConfig);
   XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(EcmDhTable, ecmDhTable, deviceConfig);
 
-  PlusStatus status = SetDhTablesFromStrings(psm1DhTable, psm2DhTable, ecmDhTable);
+	PlusStatus status = SetDhTablesFromStrings(usm1DhTable, usm2DhTable, usm3DhTable, usm4DhTable, ecmDhTable);
 
   if (status != PLUS_SUCCESS)
   {
@@ -357,46 +430,58 @@ static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector
   }
 }
 
-//----------------------------------------------------------------------------
-PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string psm1DhTable, std::string psm2DhTable, std::string ecmDhTable)
+PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, std::string usm3DhTable
+											,std::string usm4DhTable, std::string ecmDhTable)
 {
-  std::vector<std::string> psm1TokenVector, psm2TokenVector, ecmTokenVector;
- 
-  const int numDhRows = 7; const int numDhCols = 7;
-  int numElem = numDhRows*numDhCols;
+	std::vector<std::string> usm1TokenVector, usm2TokenVector, usm3TokenVector, usm4TokenVector, ecmTokenVector;
 
-  ProcessDhString(psm1DhTable);
-  ProcessDhString(psm2DhTable);
-  ProcessDhString(ecmDhTable);
+	const int numDhRows = 7; const int numDhCols = 7;
+	int numElem = numDhRows*numDhCols;
 
-  psm1TokenVector = igsioCommon::SplitStringIntoTokens(psm1DhTable, ' ');
-  psm2TokenVector = igsioCommon::SplitStringIntoTokens(psm2DhTable, ' ');
-  ecmTokenVector = igsioCommon::SplitStringIntoTokens(ecmDhTable, ' ');
+	ProcessDhString(usm1DhTable);
+	ProcessDhString(usm2DhTable);
+	ProcessDhString(usm3DhTable);
+	ProcessDhString(usm4DhTable);
+	ProcessDhString(ecmDhTable);
 
-  if((psm1TokenVector.size() != numElem) || 
-	   (psm2TokenVector.size() != numElem) ||
-	   (ecmTokenVector.size() != numElem))
-  {
-	  LOG_ERROR("Invalid formatting of DH table string. Must have " << numElem << "elements.");
-	  return PLUS_FAIL;
-  }
+	usm1TokenVector = igsioCommon::SplitStringIntoTokens(usm1DhTable, ' ');
+	usm2TokenVector = igsioCommon::SplitStringIntoTokens(usm2DhTable, ' ');
+	usm3TokenVector = igsioCommon::SplitStringIntoTokens(usm3DhTable, ' ');
+	usm4TokenVector = igsioCommon::SplitStringIntoTokens(usm4DhTable, ' ');
+	ecmTokenVector = igsioCommon::SplitStringIntoTokens(ecmDhTable, ' ');
 
-  ISI_DH_ROW isiPsm1DhTable[numDhRows];
-  ISI_DH_ROW isiPsm2DhTable[numDhRows];
-  ISI_DH_ROW isiEcmDhTable[numDhRows];
+	if ((usm1TokenVector.size() != numElem) || (usm2TokenVector.size() != numElem) ||
+		(usm3TokenVector.size() != numElem) || (usm4TokenVector.size() != numElem) || 
+		(ecmTokenVector.size() != numElem))
+	{
+		LOG_ERROR("Invalid formatting of DH table string. Must have " << numElem << "elements.");
+		return PLUS_FAIL;
+	}
 
-  ConvertTokenVectorToDhTable(psm1TokenVector, isiPsm1DhTable);
-  ConvertTokenVectorToDhTable(psm2TokenVector, isiPsm2DhTable);
-  ConvertTokenVectorToDhTable(ecmTokenVector, isiEcmDhTable);
+	ISI_DH_ROW isiUsm1DhTable[numDhRows];
+	ISI_DH_ROW isiUsm2DhTable[numDhRows];
+	ISI_DH_ROW isiUsm3DhTable[numDhRows];
+	ISI_DH_ROW isiUsm4DhTable[numDhRows];
+	ISI_DH_ROW isiEcmDhTable[numDhRows];
 
-  this->DaVinci->GetPsm1()->SetDhTable(isiPsm1DhTable);
-  LOG_DEBUG("PSM1 DH Table set to: " << this->DaVinci->GetPsm1()->GetDhTableAsString());
-  this->DaVinci->GetPsm2()->SetDhTable(isiPsm2DhTable);
-  LOG_DEBUG("PSM2 DH Table set to: " << this->DaVinci->GetPsm2()->GetDhTableAsString());
-  this->DaVinci->GetEcm()->SetDhTable(isiEcmDhTable);
-  LOG_DEBUG("ECM DH Table set to: " << this->DaVinci->GetEcm()->GetDhTableAsString());
+	ConvertTokenVectorToDhTable(usm1TokenVector, isiUsm1DhTable);
+	ConvertTokenVectorToDhTable(usm2TokenVector, isiUsm2DhTable);
+	ConvertTokenVectorToDhTable(usm3TokenVector, isiUsm3DhTable);
+	ConvertTokenVectorToDhTable(usm4TokenVector, isiUsm4DhTable);
+	ConvertTokenVectorToDhTable(ecmTokenVector, isiEcmDhTable);
 
-  return PLUS_SUCCESS;
+	this->DaVinci->GetUsm1()->SetDhTable(isiUsm1DhTable);
+	LOG_DEBUG("USM1 DH Table set to: " << this->DaVinci->GetUsm1()->GetDhTableAsString());
+	this->DaVinci->GetUsm2()->SetDhTable(isiUsm2DhTable);
+	LOG_DEBUG("USM2 DH Table set to: " << this->DaVinci->GetUsm2()->GetDhTableAsString());
+	this->DaVinci->GetUsm3()->SetDhTable(isiUsm3DhTable);
+	LOG_DEBUG("USM3 DH Table set to: " << this->DaVinci->GetUsm3()->GetDhTableAsString());
+	this->DaVinci->GetUsm4()->SetDhTable(isiUsm4DhTable);
+	LOG_DEBUG("USM4 DH Table set to: " << this->DaVinci->GetUsm4()->GetDhTableAsString());
+	this->DaVinci->GetEcm()->SetDhTable(isiEcmDhTable);
+	LOG_DEBUG("ECM DH Table set to: " << this->DaVinci->GetEcm()->GetDhTableAsString());
+
+	return PLUS_SUCCESS;
 }
 
 //----------------------------------------------------------------------------

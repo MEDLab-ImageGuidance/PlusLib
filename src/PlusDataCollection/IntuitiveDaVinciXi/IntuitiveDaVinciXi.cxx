@@ -14,26 +14,30 @@ See License.txt for details.
 
 #include "IntuitiveDaVinciXi.h"
 
-
-
 //----------------------------------------------------------------------------
 IntuitiveDaVinciXi::IntuitiveDaVinciXi()
-  : mStatus(true)
+  : mStatus(ISI_SUCCESS)
   , mConnected(false)
   , mStreaming(false)
   , mRateHz(60)
 {
-  mPsm1 = new IntuitiveDaVinciManipulatorXi(ISI_PSM1);
-  mPsm2 = new IntuitiveDaVinciManipulatorXi(ISI_PSM2);
-  mEcm = new IntuitiveDaVinciManipulatorXi(ISI_ECM);
+  mUsm1 = new IntuitiveDaVinciManipulatorXi(IXI_USM1);
+	mUsm2 = new IntuitiveDaVinciManipulatorXi(IXI_USM2);
+	mUsm3 = new IntuitiveDaVinciManipulatorXi(IXI_USM3);
+	mUsm4 = new IntuitiveDaVinciManipulatorXi(IXI_USM4);
+	mEcm = new IntuitiveDaVinciManipulatorXi(IXI_ECM);
 
-  mPsm1BaseToWorld = new ISI_TRANSFORM;
-  mPsm2BaseToWorld = new ISI_TRANSFORM;
+  mUsm1BaseToWorld = new ISI_TRANSFORM;
+  mUsm2BaseToWorld = new ISI_TRANSFORM;
+	mUsm3BaseToWorld = new ISI_TRANSFORM;
+	mUsm4BaseToWorld = new ISI_TRANSFORM;
   mEcmBaseToWorld = new ISI_TRANSFORM;
 
   mViewToWorld = new ISI_TRANSFORM;
-  mPsm1BaseToView = new ISI_TRANSFORM;
-  mPsm2BaseToView = new ISI_TRANSFORM;
+  mUsm1BaseToView = new ISI_TRANSFORM;
+	mUsm2BaseToView = new ISI_TRANSFORM;
+	mUsm3BaseToView = new ISI_TRANSFORM;
+	mUsm4BaseToView = new ISI_TRANSFORM;
 
   pName = new PyObject;
   pModule = new PyObject;
@@ -48,62 +52,31 @@ IntuitiveDaVinciXi::IntuitiveDaVinciXi()
 //----------------------------------------------------------------------------
 IntuitiveDaVinciXi::~IntuitiveDaVinciXi()
 {
-  delete mPsm1, mPsm2, mEcm;
-  mPsm1 = nullptr; mPsm2 = nullptr; mEcm = nullptr;
+	delete mUsm1, mUsm2, mUsm3, mUsm4, mEcm;
+	mUsm1 = nullptr; mUsm2 = nullptr; mUsm3 = nullptr; mUsm4 = nullptr; mEcm = nullptr;
 
-  delete mPsm1BaseToWorld, mPsm2BaseToWorld, mEcmBaseToWorld;
-  mPsm1BaseToWorld = nullptr; mPsm2BaseToWorld = nullptr; mEcmBaseToWorld = nullptr;
+	delete mUsm1BaseToWorld, mUsm2BaseToWorld, mUsm3BaseToWorld, mUsm4BaseToWorld, mEcmBaseToWorld;
+	mUsm1BaseToWorld = nullptr; mUsm2BaseToWorld = nullptr; mUsm3BaseToWorld = nullptr;
+	mUsm4BaseToWorld = nullptr; mEcmBaseToWorld = nullptr;
 
-  delete mViewToWorld, mPsm1BaseToView, mPsm2BaseToView;
-  mViewToWorld = nullptr; mPsm1BaseToView = nullptr; mPsm2BaseToView = nullptr;
+	delete mViewToWorld, mUsm1BaseToView, mUsm2BaseToView, mUsm3BaseToView, mUsm4BaseToView;
+	mViewToWorld = nullptr; mUsm1BaseToView = nullptr; mUsm2BaseToView = nullptr;
+	mUsm3BaseToView = nullptr; mUsm4BaseToView = nullptr;
+	
+	// Deleting Python API classes.
+	delete pName, pModule, pClass, pDict, pInstance, pValue;
+	pName = nullptr; pModule = nullptr; pClass = nullptr; pDict = nullptr;
+	pInstance = nullptr; pValue = nullptr;
 
-  
-
-  this->StopXi();
-  this->DisconnectXi();
-
-  /*
   this->Stop();
   this->Disconnect();
-  */
 
   LOG_DEBUG("Destroyed da Vinci Xi.");
 }
 
-/*
 ISI_STATUS IntuitiveDaVinciXi::Connect()
 {
-  LOG_DEBUG("Connecting to da Vinci Xi API.");
 
-  if (this->IsConnected())
-  {
-    LOG_WARNING("Cannot connect to da Vinci Xi API because already connected.");
-    return mStatus;
-  }
-
-  if (this->IsStreaming())
-  {
-    LOG_WARNING("Cannot connect to da Vinci Xi API because currently streaming data from it.");
-    return mStatus;
-  }
-
-  mStatus = dv_connect();
-
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Could not connect to da Vinci Xi system.");
-    return mStatus;
-  }
-
-  mConnected = true;
-  LOG_INFO("Connected to da Vinci system.");
-  return mStatus;
-}
-*/
-
-//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
-bool IntuitiveDaVinciXi::ConnectXi()
-{
 	LOG_DEBUG("Connecting to da Vinci Xi API.");
 
 	if (this->IsConnected())
@@ -118,6 +91,7 @@ bool IntuitiveDaVinciXi::ConnectXi()
 		return mStatus;
 	}
 
+	// Start Python interpreter
 	Py_Initialize();
 
 	pName = PyUnicode_DecodeFSDefault("DaVinciXiApi");
@@ -131,16 +105,18 @@ bool IntuitiveDaVinciXi::ConnectXi()
 	// get the result value
 	pValue = PyObject_CallMethod(pInstance, "connect", NULL, NULL);
 
-	mStatus = PyObject_IsTrue(pValue);
-
-	if (mStatus != true)
+	if (PyObject_IsTrue(pValue) == true)
+	{
+		mConnected = true;
+		LOG_INFO("Connected to da Vinci system.");
+		mStatus = ISI_SUCCESS;
+	}
+	else
 	{
 		LOG_ERROR("Could not connect to da Vinci Xi system.");
-		return mStatus;
+		mStatus = ISI_UNKNOWN_ERROR;
 	}
 
-	mConnected = true;
-	LOG_INFO("Connected to da Vinci system.");
 	return mStatus;
 }
 
@@ -152,47 +128,7 @@ ISI_STATUS IntuitiveDaVinciXi::ConnectDebugSineWaveMode()
   return mStatus;
 }
 
-/*
 ISI_STATUS IntuitiveDaVinciXi::Start()
-{
-  LOG_DEBUG("Starting data stream from da Vinci Xi API.");
-
-  if (this->IsStreaming())
-  {
-    LOG_WARNING("Will not attempt to start streaming because da Vinci Xi API already streaming.");
-    return mStatus;
-  }
-
-  if (!this->IsConnected())
-  {
-    LOG_WARNING("Not connected, so cannot start streaming.");
-    return mStatus;
-  }
-  
-  mStatus = dv_subscribe_all_stream_fields();
-
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Could not subscribe to da Vinci Xi data stream.");
-    return mStatus;
-  }
-
-  mStatus = dv_start_stream(mRateHz);
-
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Could not start da Vinci Xi data stream.");
-    return mStatus;
-  }
-
-  mStreaming = true;
-  LOG_DEBUG("Data stream started.");
-  return mStatus;
-}
-*/
-
-//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
-bool IntuitiveDaVinciXi::StartXi()
 {
 	LOG_DEBUG("Starting data stream from da Vinci Xi API.");
 
@@ -211,18 +147,19 @@ bool IntuitiveDaVinciXi::StartXi()
 	// get the result value
 	pValue = PyObject_CallMethod(pInstance, "startStream", NULL, mRateHz);
 
-	mStatus = PyObject_IsTrue(pValue);
-
-	if (mStatus != true)
+	if (PyObject_IsTrue(pValue) == true)
+	{
+		mStreaming = true;
+		LOG_DEBUG("Data stream started.");
+		mStatus = ISI_SUCCESS;
+	}
+	else
 	{
 		LOG_ERROR("Could not start da Vinci Xi data stream.");
-		return mStatus;
+		mStatus = ISI_UNKNOWN_ERROR;
 	}
 
-	mStreaming = true;
-	LOG_DEBUG("Data stream started.");
 	return mStatus;
-
 }
 
 //----------------------------------------------------------------------------
@@ -233,32 +170,7 @@ ISI_STATUS IntuitiveDaVinciXi::StartDebugSineWaveMode()
   return mStatus;
 }
 
-/*
 void IntuitiveDaVinciXi::Stop()
-{
-  LOG_DEBUG("Stopping data stream from da Vinci Xi API.");
-
-  if (this->IsConnected())
-  {
-    LOG_WARNING("Cannot stop da Vinci Xi stream until disconnected.");
-    return;
-  }
-
-  if (!this->IsStreaming())
-  {
-    LOG_WARNING("Stop called, but da Vinci Xi is already stopped.");
-    return;
-  }
-
-  dv_stop_stream();
-
-  mStreaming = false;
-  LOG_DEBUG("Streaming from the da Vinci Xi API stopped.");
-}
-*/
-
-//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
-void IntuitiveDaVinciXi::StopXi()
 {
 	LOG_DEBUG("Stopping data stream from da Vinci Xi API.");
 
@@ -278,34 +190,9 @@ void IntuitiveDaVinciXi::StopXi()
 
 	mStreaming = false;
 	LOG_DEBUG("Streaming from the da Vinci Xi API stopped.");
-
 }
 
-/*
 void IntuitiveDaVinciXi::Disconnect()
-{
-  // check if system is connected
-  if (!this->IsConnected())
-  {
-    LOG_WARNING("Disconnect cannot be called because not connected.");
-    return;
-  }
-
-  if (this->IsStreaming())
-  {
-    LOG_WARNING("You must stop streaming before attempting to disconnect.");
-    return;
-  }
-
-  dv_disconnect();
-
-  mConnected = false;
-  LOG_DEBUG("Disconnected from the da Vinci Xi API.")
-}
-*/
-
-//-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
-void IntuitiveDaVinciXi::DisconnectXi()
 {
 	// check if system is connected
 	if (!this->IsConnected())
@@ -321,9 +208,6 @@ void IntuitiveDaVinciXi::DisconnectXi()
 	}
 
 	PyObject_CallMethod(pInstance, "disconnect", NULL, NULL);
-
-	Py_DECREF(pName); Py_DECREF(pModule); Py_DECREF(pClass);
-	Py_DECREF(pDict); Py_DECREF(pInstance); Py_DECREF(pValue);
 
 	Py_Finalize();
 	mConnected = false;
@@ -343,74 +227,102 @@ bool IntuitiveDaVinciXi::IsStreaming() const
   return mStreaming;
 }
 
-//----------------------------------------------------------------------------
-bool IntuitiveDaVinciXi::UpdateAllJointValues()
+ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValues()
 {
-  mStatus = this->mPsm1->UpdateJointValuesXi();
+	mStatus = this->mUsm1->UpdateJointValues();
 
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Could not update the PSM1 joint values with the da Vinci Xi API.");
-    return mStatus;
-  }
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Could not update the USM1 joint values with the da Vinci API.");
+		return mStatus;
+	}
 
-	mStatus = this->mPsm2->UpdateJointValuesXi();
+	mStatus = this->mUsm2->UpdateJointValues();
 
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Could not update the PSM2 joint values with the da Vinci Xi API.");
-    return mStatus;
-  }
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Could not update the USM2 joint values with the da Vinci API.");
+		return mStatus;
+	}
 
-	mStatus = this->mEcm->UpdateJointValuesXi();
+	mStatus = this->mUsm3->UpdateJointValues();
 
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Could not update the ECM joint values with the da Vinci Xi API.");
-    return mStatus;
-  }
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Could not update the USM3 joint values with the da Vinci API.");
+		return mStatus;
+	}
 
-  return mStatus;
+	mStatus = this->mUsm4->UpdateJointValues();
+
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Could not update the USM4 joint values with the da Vinci API.");
+		return mStatus;
+	}
+
+	mStatus = this->mEcm->UpdateJointValues();
+
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Could not update the ECM joint values with the da Vinci API.");
+		return mStatus;
+	}
+
+	return mStatus;
 }
 
-//----------------------------------------------------------------------------
 ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValuesSineWave()
 {
-  clock_t ticks = clock();
-  float t = ((float)ticks) / ((float)CLOCKS_PER_SEC);
+	clock_t ticks = clock();
+	float t = ((float)ticks) / ((float)CLOCKS_PER_SEC);
 
-  ISI_FLOAT psm1JointValues[ISI_NUM_PSM_JOINTS] = { 0.5*sin(1.0*t), 0.5*sin(1.5*t), 50.0*sin(2.0*t) + 75.0, sin(1.7*t), sin(0.7*t), sin(0.5*t), sin(0.8*t) };
-  ISI_FLOAT psm2JointValues[ISI_NUM_PSM_JOINTS] = { 0.5*sin(1.1*t), 0.5*sin(1.4*t), 50.0*sin(2.1*t) + 75.0, sin(1.6*t), sin(0.6*t), sin(0.9*t), sin(1.8*t) };
-  ISI_FLOAT ecmJointValues[ISI_NUM_ECM_JOINTS] = { 0.5*sin(0.9*t), 0.5*sin(1.3*t), 50.0*sin(1.3*t) + 75.0, sin(1.1*t) };
+	ISI_FLOAT usm1JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.0*t), 0.5*sin(1.5*t), 50.0*sin(2.0*t) + 75.0, sin(1.7*t), sin(0.7*t), sin(0.5*t), sin(0.8*t) };
+	ISI_FLOAT usm2JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.1*t), 0.5*sin(1.4*t), 50.0*sin(2.1*t) + 75.0, sin(1.6*t), sin(0.6*t), sin(0.9*t), sin(1.8*t) };
+	ISI_FLOAT usm3JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(0.9*t), 0.5*sin(1.6*t), 50.0*sin(1.9*t) + 75.0, sin(1.8*t), sin(0.8*t), sin(0.8*t), sin(1.6*t) };
+	ISI_FLOAT usm4JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.2*t), 0.5*sin(1.7*t), 50.0*sin(2.3*t) + 75.0, sin(1.9*t), sin(0.4*t), sin(0.2*t), sin(1.2*t) };
+	ISI_FLOAT ecmJointValues[IXI_NUM_ECM_JOINTS] = { 0.5*sin(0.9*t), 0.5*sin(1.3*t), 50.0*sin(1.3*t) + 75.0, sin(1.1*t) };
 
-  this->mPsm1->SetJointValues(psm1JointValues);
-  this->mPsm2->SetJointValues(psm2JointValues);
-  this->mEcm->SetJointValues(ecmJointValues);
+	this->mUsm1->SetJointValues(usm1JointValues);
+	this->mUsm2->SetJointValues(usm2JointValues);
+	this->mUsm3->SetJointValues(usm3JointValues);
+	this->mUsm4->SetJointValues(usm4JointValues);
+	this->mEcm->SetJointValues(ecmJointValues);
 
-  return mStatus;
+	return mStatus;
 }
 
-//----------------------------------------------------------------------------
 void IntuitiveDaVinciXi::PrintAllJointValues() const
 {
-  std::string tmp0 = this->mPsm1->GetJointValuesAsString();
-  LOG_DEBUG("PSM1 Joint Values: " << tmp0);
-  std::string tmp1 = this->mPsm2->GetJointValuesAsString();
-  LOG_DEBUG("PSM2 Joint Values: " << tmp1);
-  std::string tmp2 = this->mEcm->GetJointValuesAsString();
-  LOG_DEBUG("ECM Joint Values: " << tmp2);
+	std::string tmp0 = this->mUsm1->GetJointValuesAsString();
+	LOG_DEBUG("USM1 Joint Values: " << tmp0);
+	std::string tmp1 = this->mUsm2->GetJointValuesAsString();
+	LOG_DEBUG("USM2 Joint Values: " << tmp1);
+	std::string tmp2 = this->mUsm3->GetJointValuesAsString();
+	LOG_DEBUG("USM3 Joint Values: " << tmp2);
+	std::string tmp3 = this->mUsm4->GetJointValuesAsString();
+	LOG_DEBUG("USM4 Joint Values: " << tmp3);
+	std::string tmp4 = this->mEcm->GetJointValuesAsString();
+	LOG_DEBUG("ECM Joint Values: " << tmp4);
 }
 
-//----------------------------------------------------------------------------
 std::string IntuitiveDaVinciXi::GetAllJointValuesAsString() const
 {
-  std::stringstream str;
-  str << "PSM1: " << this->mPsm1->GetJointValuesAsString() << '\n';
-  str << "PSM2: " << this->mPsm2->GetJointValuesAsString() << '\n';
-  str << "ECM:  " << this->mEcm->GetJointValuesAsString() << '\n';
-  
-  return str.str();
+	std::stringstream str;
+	str << "USM1: " << this->mUsm1->GetJointValuesAsString() << '\n';
+	str << "USM2: " << this->mUsm2->GetJointValuesAsString() << '\n';
+	str << "USM3: " << this->mUsm3->GetJointValuesAsString() << '\n';
+	str << "USM4: " << this->mUsm4->GetJointValuesAsString() << '\n';
+	str << "ECM:  " << this->mEcm->GetJointValuesAsString() << '\n';
+
+	return str.str();
 }
+
+void IntuitiveDaVinciXi::UpdateBaseToWorldTransforms()
+{
+
+}
+
 
 //----------------------------------------------------------------------------
 void IntuitiveDaVinciXi::UpdateBaseToWorldTransforms()
@@ -446,47 +358,65 @@ void IntuitiveDaVinciXi::UpdateBaseToWorldTransforms()
   dv_mult_transforms(mViewToWorld, mPsm2BaseToView, mPsm2BaseToWorld);
 }
 
-//----------------------------------------------------------------------------
 ISI_STATUS IntuitiveDaVinciXi::UpdateAllKinematicsTransforms()
 {
-  UpdateBaseToWorldTransforms();
+	UpdateBaseToWorldTransforms();
 
-  mStatus = this->mPsm1->UpdateLinkTransforms();
+	mStatus = this->mUsm1->UpdateLinkTransforms();
 
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Error updating PSM1 manipulator transforms.");
-    return mStatus;
-  }
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Error updating USM1 manipulator transforms.");
+		return mStatus;
+	}
 
-  mStatus = this->mPsm2->UpdateLinkTransforms();
+	mStatus = this->mUsm2->UpdateLinkTransforms();
 
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Error updating PSM2 manipulator transforms.");
-    return mStatus;
-  }
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Error updating USM2 manipulator transforms.");
+		return mStatus;
+	}
 
-  mStatus = this->mEcm->UpdateLinkTransforms();
+	mStatus = this->mUsm3->UpdateLinkTransforms();
 
-  if (mStatus != ISI_SUCCESS)
-  {
-    LOG_ERROR("Error updating ECM manipulator transforms.");
-    return mStatus;
-  }
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Error updating USM1 manipulator transforms.");
+		return mStatus;
+	}
 
-  return mStatus;
+	mStatus = this->mUsm4->UpdateLinkTransforms();
+
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Error updating USM1 manipulator transforms.");
+		return mStatus;
+	}
+
+	mStatus = this->mEcm->UpdateLinkTransforms();
+
+	if (mStatus != ISI_SUCCESS)
+	{
+		LOG_ERROR("Error updating ECM manipulator transforms.");
+		return mStatus;
+	}
+
+	return mStatus;
 }
 
-//----------------------------------------------------------------------------
 void IntuitiveDaVinciXi::PrintAllKinematicsTransforms() const
 {
-  std::string tmp0 = this->mPsm1->GetTransformsAsString();
-  LOG_DEBUG("PSM1 Kinematics Transforms: " << tmp0);
-  std::string tmp1 = this->mPsm2->GetTransformsAsString();
-  LOG_DEBUG("PSM2 Kinematics Transforms: " << tmp1);
-  std::string tmp2 = this->mEcm->GetTransformsAsString();
-  LOG_DEBUG("ECM Kinematics Transforms: " << tmp2);
+	std::string tmp0 = this->mUsm1->GetTransformsAsString();
+	LOG_DEBUG("USM1 Kinematics Transforms: " << tmp0);
+	std::string tmp1 = this->mUsm2->GetTransformsAsString();
+	LOG_DEBUG("USM2 Kinematics Transforms: " << tmp1);
+	std::string tmp2 = this->mUsm3->GetTransformsAsString();
+	LOG_DEBUG("USM3 Kinematics Transforms: " << tmp2);
+	std::string tmp3 = this->mUsm4->GetTransformsAsString();
+	LOG_DEBUG("USM4 Kinematics Transforms: " << tmp3);
+	std::string tmp4 = this->mEcm->GetTransformsAsString();
+	LOG_DEBUG("ECM Kinematics Transforms: " << tmp4);
 }
 
 //----------------------------------------------------------------------------
@@ -504,15 +434,25 @@ void IntuitiveDaVinciXi::CopyIsiTransform(ISI_TRANSFORM* in, ISI_TRANSFORM* out)
 }
 
 //----------------------------------------------------------------------------
-ISI_TRANSFORM* IntuitiveDaVinciXi::GetPsm1BaseToWorld() const
+ISI_TRANSFORM* IntuitiveDaVinciXi::GetUsm1BaseToWorld() const
 {
-  return mPsm1BaseToWorld;
+  return mUsm1BaseToWorld;
 }
 
 //----------------------------------------------------------------------------
-ISI_TRANSFORM* IntuitiveDaVinciXi::GetPsm2BaseToWorld() const
+ISI_TRANSFORM* IntuitiveDaVinciXi::GetUsm2BaseToWorld() const
 {
-  return mPsm2BaseToWorld;
+	return mUsm2BaseToWorld;
+}
+
+ISI_TRANSFORM* IntuitiveDaVinciXi::GetUsm3BaseToWorld() const
+{
+	return mUsm3BaseToWorld;
+}
+
+ISI_TRANSFORM* IntuitiveDaVinciXi::GetUsm4BaseToWorld() const
+{
+	return mUsm4BaseToWorld;
 }
 
 //----------------------------------------------------------------------------
@@ -522,15 +462,25 @@ ISI_TRANSFORM* IntuitiveDaVinciXi::GetEcmBaseToWorld() const
 }
 
 //----------------------------------------------------------------------------
-IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetPsm1() const
+IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetUsm1() const
 {
-  return this->mPsm1;
+  return this->mUsm1;
 }
 
 //----------------------------------------------------------------------------
-IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetPsm2() const
+IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetUsm2() const
 {
-  return this->mPsm2;
+	return this->mUsm2;
+}
+
+IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetUsm3() const
+{
+	return this->mUsm3;
+}
+
+IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetUsm4() const
+{
+	return this->mUsm4;
 }
 
 //----------------------------------------------------------------------------
