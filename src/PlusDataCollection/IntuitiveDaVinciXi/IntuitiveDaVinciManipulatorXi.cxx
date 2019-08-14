@@ -17,8 +17,6 @@ See License.txt for details.
 //----------------------------------------------------------------------------
 IntuitiveDaVinciManipulatorXi::IntuitiveDaVinciManipulatorXi(ISI_MANIP_INDEX manipIndex)
   : mManipIndex(manipIndex)
-	, DaVinciXi(new IntuitiveDaVinciXi())
-
 {
   if(mManipIndex == ISI_PSM1 || mManipIndex == ISI_PSM2) 
   {
@@ -30,10 +28,12 @@ IntuitiveDaVinciManipulatorXi::IntuitiveDaVinciManipulatorXi(ISI_MANIP_INDEX man
   mTransforms = new ISI_TRANSFORM[7];
   mJointValues = new ISI_FLOAT[mNumJoints];
 
-	// We can change the number of joints with if statements
-	numberOfJoints = (int)USM1_JOINT_VALUE;
-
-	jointValuesArray = new float[numberOfJoints];
+	pName = new PyObject;
+	pModule = new PyObject;
+	pClass = new PyObject;
+	pDict = new PyObject;
+	pInstance = new PyObject;
+	pValue = new PyObject;
 
   LOG_DEBUG("Created da Vinci Xi manipulator.");
 }
@@ -44,16 +44,16 @@ IntuitiveDaVinciManipulatorXi::~IntuitiveDaVinciManipulatorXi()
   delete[] mDhTable;
   delete[] mTransforms;
   delete[] mJointValues;
-	delete[] jointValuesArray;
-
-	delete this->DaVinciXi;
-	this->DaVinciXi = nullptr;
 
   mDhTable = nullptr; mTransforms = nullptr; mJointValues = nullptr;
+
+	Py_DECREF(pName); Py_DECREF(pModule); Py_DECREF(pClass);
+	Py_DECREF(pDict); Py_DECREF(pInstance); Py_DECREF(pValue);
 
   LOG_DEBUG("Destroyed da Vinci Xi manipulator.");
 }
 
+/*
 //----------------------------------------------------------------------------
 ISI_STATUS IntuitiveDaVinciManipulatorXi::UpdateJointValues()
 {
@@ -75,6 +75,7 @@ ISI_STATUS IntuitiveDaVinciManipulatorXi::UpdateJointValues()
 
   return status;
 }
+*/
 
 //-----------------------------------THIS FUNCTION IS FOR DA VINCI XI-----------------
 bool IntuitiveDaVinciManipulatorXi::UpdateJointValuesXi()
@@ -83,14 +84,22 @@ bool IntuitiveDaVinciManipulatorXi::UpdateJointValuesXi()
 
 	PyObject* pList;
 
-	pList = PyList_New(numberOfJoints);
-	pList = PyObject_CallMethod(this->DaVinciXi->GetPyInstance(), "getUsmJointValues", NULL, "usmType"); // Specify usm type
+	pName = PyUnicode_DecodeFSDefault("DaVinciXiApi");
+	pModule = PyImport_Import(pName);
+
+	// get the class 
+	pDict = PyModule_GetDict(pModule);
+	pClass = PyDict_GetItemString(pDict, "DaVinciXiApi");
+	pInstance = PyObject_CallObject(pClass, NULL);
+
+	pList = PyList_New(mNumJoints);
+	pList = PyObject_CallMethod(pInstance, "getUsmJointValues", NULL, "usmType"); // Specify usm type
 
 	if (pList != NULL)
 	{
-		for (int i = 0; i < numberOfJoints; i++)
+		for (int i = 0; i < mNumJoints; i++)
 		{
-			jointValuesArray[i] = PyLong_AsLong(PyList_GetItem(pList, i));
+			mJointValues[i] = PyLong_AsLong(PyList_GetItem(pList, i));
 		}
 
 		status = true;

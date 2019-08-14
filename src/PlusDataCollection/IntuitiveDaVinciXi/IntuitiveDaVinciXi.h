@@ -12,8 +12,6 @@ See License.txt for details.
 
 #include "isi_api_types.h"
 
-#include <Python.h>
-
 class IntuitiveDaVinciXi
 {
 public:
@@ -88,9 +86,6 @@ public:
 
   /*! Update every transform for each DH row in the kinematic chain. */
   ISI_STATUS UpdateAllKinematicsTransforms();
-
-	/*! Get all of the joint values as a string. */
-	PyObject* GetPyInstance() const;
 
   /*! Copy data from one ISI_TRANSFORM to another. */
   static void CopyIsiTransform(ISI_TRANSFORM* srcTransform, ISI_TRANSFORM* destTransform);

@@ -538,8 +538,3 @@ IntuitiveDaVinciManipulatorXi* IntuitiveDaVinciXi::GetEcm() const
 {
   return this->mEcm;
 }
-
-PyObject* IntuitiveDaVinciXi::GetPyInstance() const
-{
-	return this->pInstance;
-}

@@ -8,7 +8,6 @@ See License.txt for details.
 #define _INTUITIVE_DAVINCI_MANIPULATORXI_H_
 
 #include "isi_api_types.h"
-#include "IntuitiveDaVinciXi.h"
 
 #include <Python.h>
 
@@ -74,7 +73,13 @@ protected:
 
 	float* jointValuesArray;
 
-	IntuitiveDaVinciXi* DaVinciXi;
+	/*! Python object to run Python scripts. */
+	PyObject* pName;
+	PyObject* pModule;
+	PyObject* pDict;
+	PyObject* pClass;
+	PyObject* pInstance;
+	PyObject* pValue;
 };
 
 #endif
