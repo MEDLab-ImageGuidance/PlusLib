@@ -75,7 +75,7 @@ ISI_STATUS IntuitiveDaVinciManipulatorXi::UpdateJointValues()
 		for (int iii = 0; iii < mNumJoints; iii++)
 		{
 			mJointValues[iii] = PyLong_AsLong(PyList_GetItem(pList, iii));
-			if (iii == 2) mJointValues[iii] *= 1000.0;
+			if (iii == 3) mJointValues[iii] *= 1000.0;
 		}
 
 		status = ISI_SUCCESS;

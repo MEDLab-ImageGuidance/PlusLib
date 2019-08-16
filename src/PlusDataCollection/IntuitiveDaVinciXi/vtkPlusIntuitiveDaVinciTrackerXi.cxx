@@ -168,7 +168,7 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalStartRecording()
 	else
 		status = this->DaVinci->Start();
 
-  if (status != true)
+	if (status != ISI_SUCCESS)
   {
     LOG_ERROR("InternalStartRecording: Unable to start streaming.");
     return PLUS_FAIL;
