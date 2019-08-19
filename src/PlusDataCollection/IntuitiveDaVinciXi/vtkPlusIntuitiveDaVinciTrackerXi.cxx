@@ -24,13 +24,11 @@ vtkPlusIntuitiveDaVinciTrackerXi::vtkPlusIntuitiveDaVinciTrackerXi()
   , DaVinci(new IntuitiveDaVinciXi())
   , LastFrameNumber(0)
   , DebugSineWaveMode(false)
-	, usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL), ecmJoints(NULL)
-	, usm1Base(NULL), usm2Base(NULL), usm3Base(NULL), usm4Base(NULL), ecmBase(NULL)
+	, usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL)
   , usm1Frame1(NULL), usm1Frame2(NULL), usm1Frame3(NULL), usm1Frame4(NULL), usm1Frame5(NULL), usm1Frame6(NULL), usm1Frame7(NULL)
   , usm2Frame1(NULL), usm2Frame2(NULL), usm2Frame3(NULL), usm2Frame4(NULL), usm2Frame5(NULL), usm2Frame6(NULL), usm2Frame7(NULL)
 	, usm3Frame1(NULL), usm3Frame2(NULL), usm3Frame3(NULL), usm3Frame4(NULL), usm3Frame5(NULL), usm3Frame6(NULL), usm3Frame7(NULL)
 	, usm4Frame1(NULL), usm4Frame2(NULL), usm4Frame3(NULL), usm4Frame4(NULL), usm4Frame5(NULL), usm4Frame6(NULL), usm4Frame7(NULL)
-  , ecmFrame1(NULL),  ecmFrame2(NULL),  ecmFrame3(NULL),  ecmFrame4(NULL),  ecmFrame5(NULL),  ecmFrame6(NULL),  ecmFrame7(NULL)
 {
   this->StartThreadForInternalUpdates = true; // Want a dedicated thread
   this->RequirePortNameInDeviceSetConfiguration = true;
@@ -93,13 +91,6 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
   GetToolByPortName("usm2Joints", this->usm2Joints);
 	GetToolByPortName("usm3Joints", this->usm3Joints);
 	GetToolByPortName("usm4Joints", this->usm4Joints);
-  GetToolByPortName("ecmJoints", this->ecmJoints);
-
-  GetToolByPortName("usm1Base", this->usm1Base);
-  GetToolByPortName("usm2Base", this->usm2Base);
-	GetToolByPortName("usm3Base", this->usm3Base);
-	GetToolByPortName("usm4Base", this->usm4Base);
-  GetToolByPortName("ecmBase", this->ecmBase);
 
   GetToolByPortName("usm1Frame1", this->usm1Frame1);
   GetToolByPortName("usm1Frame2", this->usm1Frame2);
@@ -132,14 +123,6 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
 	GetToolByPortName("usm4Frame5", this->usm4Frame5);
 	GetToolByPortName("usm4Frame6", this->usm4Frame6);
 	GetToolByPortName("usm4Frame7", this->usm4Frame7);
-
-  GetToolByPortName("ecmFrame1", this->ecmFrame1);
-  GetToolByPortName("ecmFrame2", this->ecmFrame2);
-  GetToolByPortName("ecmFrame3", this->ecmFrame3);
-  GetToolByPortName("ecmFrame4", this->ecmFrame4);
-  GetToolByPortName("ecmFrame5", this->ecmFrame5);
-  GetToolByPortName("ecmFrame6", this->ecmFrame6);
-  GetToolByPortName("ecmFrame7", this->ecmFrame7);
 
   LOG_DEBUG("Connection successful.");
 
@@ -260,22 +243,6 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	frameNumber = usm4Joints->GetFrameNumber() + 1;
 	ToolTimeStampedUpdate(usm4Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
-  jointValues = this->DaVinci->GetEcm()->GetJointValues();
-  tmpVtkMatrix->Identity();
-  tmpVtkMatrix->SetElement(0, 0, jointValues[0]);
-  tmpVtkMatrix->SetElement(0, 1, jointValues[1]);
-  tmpVtkMatrix->SetElement(0, 2, jointValues[2]);
-  tmpVtkMatrix->SetElement(0, 3, jointValues[3]);
-  frameNumber = ecmJoints->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(ecmJoints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
-
-  // Update all of the manipulator base frames
-  PUBLISH_ISI_TRANSFORM(usm1Base, this->DaVinci->GetUsm1BaseToWorld());
-  PUBLISH_ISI_TRANSFORM(usm2Base, this->DaVinci->GetUsm2BaseToWorld());
-	PUBLISH_ISI_TRANSFORM(usm3Base, this->DaVinci->GetUsm3BaseToWorld());
-	PUBLISH_ISI_TRANSFORM(usm4Base, this->DaVinci->GetUsm4BaseToWorld());
-  PUBLISH_ISI_TRANSFORM(ecmBase, this->DaVinci->GetEcmBaseToWorld());
-
   // Update all of the usm1Frames
   ISI_TRANSFORM* usm1Transforms = this->DaVinci->GetUsm1()->GetTransforms();
 
@@ -320,17 +287,6 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	PUBLISH_ISI_TRANSFORM(usm4Frame6, usm4Transforms + 5);
 	PUBLISH_ISI_TRANSFORM(usm4Frame7, usm4Transforms + 6);
 
-  // Update all of the ecmFrames
-  ISI_TRANSFORM* ecmTransforms = this->DaVinci->GetEcm()->GetTransforms();
-
-  PUBLISH_ISI_TRANSFORM(ecmFrame1, ecmTransforms + 0);
-  PUBLISH_ISI_TRANSFORM(ecmFrame2, ecmTransforms + 1);
-  PUBLISH_ISI_TRANSFORM(ecmFrame3, ecmTransforms + 2);
-  PUBLISH_ISI_TRANSFORM(ecmFrame4, ecmTransforms + 3);
-  PUBLISH_ISI_TRANSFORM(ecmFrame5, ecmTransforms + 4);
-  PUBLISH_ISI_TRANSFORM(ecmFrame6, ecmTransforms + 5);
-  PUBLISH_ISI_TRANSFORM(ecmFrame7, ecmTransforms + 6);
-
   return PLUS_SUCCESS;
 }
 
@@ -367,15 +323,13 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::ReadConfiguration(vtkXMLDataElement
   std::string usm2DhTable;
 	std::string usm3DhTable;
 	std::string usm4DhTable;
-  std::string ecmDhTable;
 
   XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm1DhTable, usm1DhTable, deviceConfig);
   XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm2DhTable, usm2DhTable, deviceConfig);
 	XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm3DhTable, usm3DhTable, deviceConfig);
 	XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm4DhTable, usm4DhTable, deviceConfig);
-  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(EcmDhTable, ecmDhTable, deviceConfig);
 
-	PlusStatus status = SetDhTablesFromStrings(usm1DhTable, usm2DhTable, usm3DhTable, usm4DhTable, ecmDhTable);
+	PlusStatus status = SetDhTablesFromStrings(usm1DhTable, usm2DhTable, usm3DhTable, usm4DhTable);
 
   if (status != PLUS_SUCCESS)
   {
@@ -431,9 +385,9 @@ static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector
 }
 
 PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, std::string usm3DhTable
-											,std::string usm4DhTable, std::string ecmDhTable)
+											,std::string usm4DhTable)
 {
-	std::vector<std::string> usm1TokenVector, usm2TokenVector, usm3TokenVector, usm4TokenVector, ecmTokenVector;
+	std::vector<std::string> usm1TokenVector, usm2TokenVector, usm3TokenVector, usm4TokenVector;
 
 	const int numDhRows = 7; const int numDhCols = 7;
 	int numElem = numDhRows*numDhCols;
@@ -442,17 +396,13 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string 
 	ProcessDhString(usm2DhTable);
 	ProcessDhString(usm3DhTable);
 	ProcessDhString(usm4DhTable);
-	ProcessDhString(ecmDhTable);
 
 	usm1TokenVector = igsioCommon::SplitStringIntoTokens(usm1DhTable, ' ');
 	usm2TokenVector = igsioCommon::SplitStringIntoTokens(usm2DhTable, ' ');
 	usm3TokenVector = igsioCommon::SplitStringIntoTokens(usm3DhTable, ' ');
 	usm4TokenVector = igsioCommon::SplitStringIntoTokens(usm4DhTable, ' ');
-	ecmTokenVector = igsioCommon::SplitStringIntoTokens(ecmDhTable, ' ');
-
 	if ((usm1TokenVector.size() != numElem) || (usm2TokenVector.size() != numElem) ||
-		(usm3TokenVector.size() != numElem) || (usm4TokenVector.size() != numElem) || 
-		(ecmTokenVector.size() != numElem))
+		(usm3TokenVector.size() != numElem) || (usm4TokenVector.size() != numElem))
 	{
 		LOG_ERROR("Invalid formatting of DH table string. Must have " << numElem << "elements.");
 		return PLUS_FAIL;
@@ -462,13 +412,11 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string 
 	ISI_DH_ROW isiUsm2DhTable[numDhRows];
 	ISI_DH_ROW isiUsm3DhTable[numDhRows];
 	ISI_DH_ROW isiUsm4DhTable[numDhRows];
-	ISI_DH_ROW isiEcmDhTable[numDhRows];
 
 	ConvertTokenVectorToDhTable(usm1TokenVector, isiUsm1DhTable);
 	ConvertTokenVectorToDhTable(usm2TokenVector, isiUsm2DhTable);
 	ConvertTokenVectorToDhTable(usm3TokenVector, isiUsm3DhTable);
 	ConvertTokenVectorToDhTable(usm4TokenVector, isiUsm4DhTable);
-	ConvertTokenVectorToDhTable(ecmTokenVector, isiEcmDhTable);
 
 	this->DaVinci->GetUsm1()->SetDhTable(isiUsm1DhTable);
 	LOG_DEBUG("USM1 DH Table set to: " << this->DaVinci->GetUsm1()->GetDhTableAsString());
@@ -478,8 +426,6 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string 
 	LOG_DEBUG("USM3 DH Table set to: " << this->DaVinci->GetUsm3()->GetDhTableAsString());
 	this->DaVinci->GetUsm4()->SetDhTable(isiUsm4DhTable);
 	LOG_DEBUG("USM4 DH Table set to: " << this->DaVinci->GetUsm4()->GetDhTableAsString());
-	this->DaVinci->GetEcm()->SetDhTable(isiEcmDhTable);
-	LOG_DEBUG("ECM DH Table set to: " << this->DaVinci->GetEcm()->GetDhTableAsString());
 
 	return PLUS_SUCCESS;
 }

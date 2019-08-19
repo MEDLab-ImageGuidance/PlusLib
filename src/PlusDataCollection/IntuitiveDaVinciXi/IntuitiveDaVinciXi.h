@@ -12,6 +12,8 @@ See License.txt for details.
 
 #include "isi_api_types.h"
 
+#include <Python.h>
+
 class IntuitiveDaVinciXi
 {
 public:
@@ -46,14 +48,8 @@ public:
   IntuitiveDaVinciManipulatorXi* GetUsm2() const;
 	IntuitiveDaVinciManipulatorXi* GetUsm3() const;
 	IntuitiveDaVinciManipulatorXi* GetUsm4() const;
-  IntuitiveDaVinciManipulatorXi* GetEcm() const;
 
-  /*! Accessor for each of the manipulator base transforms. */
-  ISI_TRANSFORM* GetUsm1BaseToWorld() const;
-  ISI_TRANSFORM* GetUsm2BaseToWorld() const;
-	ISI_TRANSFORM* GetUsm3BaseToWorld() const;
-	ISI_TRANSFORM* GetUsm4BaseToWorld() const;
-  ISI_TRANSFORM* GetEcmBaseToWorld() const;
+	ISI_FLOAT* IntuitiveDaVinciXi::GetJointValuesFromPy(IXI_MANIP_INDEX mIxiManipIndex);
 
   /*! Update joint values using the da Vinci Xi API for all of the manipulators. */
 	ISI_STATUS UpdateAllJointValues();
@@ -69,9 +65,6 @@ public:
 
   /*! Print all of the kinematics transforms for all of the manipulators. */
   void PrintAllKinematicsTransforms() const;
-
-  /*! Update all of the base frames of the manipulators using the da Vinci Xi API. */
-  void UpdateBaseToWorldTransforms();
 
   /*! Update every transform for each DH row in the kinematic chain. */
   ISI_STATUS UpdateAllKinematicsTransforms();
@@ -91,21 +84,6 @@ protected:
   IntuitiveDaVinciManipulatorXi* mUsm2;
 	IntuitiveDaVinciManipulatorXi* mUsm3;
 	IntuitiveDaVinciManipulatorXi* mUsm4;
-  IntuitiveDaVinciManipulatorXi* mEcm;
-
-  /*! We also want to track all of the manipulator base frames. */
-  ISI_TRANSFORM* mUsm1BaseToWorld;
-  ISI_TRANSFORM* mUsm2BaseToWorld;
-	ISI_TRANSFORM* mUsm3BaseToWorld;
-	ISI_TRANSFORM* mUsm4BaseToWorld;
-  ISI_TRANSFORM* mEcmBaseToWorld;
-
-  /*! These are some intermediate variables needed for computation of the base frames poses. */
-  ISI_TRANSFORM* mViewToWorld;
-  ISI_TRANSFORM* mUsm1BaseToView;
-  ISI_TRANSFORM* mUsm2BaseToView;
-	ISI_TRANSFORM* mUsm3BaseToView;
-	ISI_TRANSFORM* mUsm4BaseToView;
 
   /*! Python object to run Python scripts. */
   PyObject* pName;

@@ -75,7 +75,7 @@ private:
 
   /*! From three strings (likely obtained from the xml), set the robot DH tables. */
 	PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, std::string usm3DhTable
-		,std::string usm4DhTable, std::string ecmDhTable);
+		,std::string usm4DhTable);
 
 private:
   /*************** ROBOT JOINT VALUES ***************/
@@ -91,26 +91,6 @@ private:
 
 	/*! The 7 joint values of USM4 stored and broadcasted in the first 7 elements of a matrix. */
 	vtkPlusDataSource* usm4Joints;
-
-  /*! The 7 joint values of ECM stored and broadcasted in the first 4 elements of a matrix. */
-  vtkPlusDataSource* ecmJoints;
-
-  /*************** ROBOT BASE TRANSFORMS ***************/
-
-  /*! Transform from USM1 Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* usm1Base;
-
-  /*! Transform from USM2 Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* usm2Base;
-
-	/*! Transform from USM3 Base frame to the da Vinci world frame. */
-	vtkPlusDataSource* usm3Base;
-
-	/*! Transform from USM4 Base frame to the da Vinci world frame. */
-	vtkPlusDataSource* usm4Base;
-
-  /*! Transform from ECM Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* ecmBase;
 
   /*************** USM1 LINK TRANSFORMS ***************/
 
@@ -204,28 +184,6 @@ private:
 	/*! Transform from Frame7 of USM4 to USM4 Base. */
 	vtkPlusDataSource* usm4Frame7;
 
-  /*************** ECM LINK TRANSFORMS ***************/
-
-  /*! Transform from Frame1 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame1;
-
-  /*! Transform from Frame2 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame2;
-
-  /*! Transform from Frame3 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame3;
-
-  /*! Transform from Frame4 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame4;
-
-  /*! Transform from Frame5 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame5;
-
-  /*! Transform from Frame6 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame6;
-
-  /*! Transform from Frame7 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame7;
 };
 
 // Macro to publish an isiTransform to a given tool. 

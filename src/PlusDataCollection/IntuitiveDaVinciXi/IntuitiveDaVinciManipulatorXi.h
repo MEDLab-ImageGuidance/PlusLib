@@ -10,8 +10,6 @@ See License.txt for details.
 #include "isi_api_types.h"
 #include "ixi_api_types.h"
 
-#include <Python.h>
-
 class IntuitiveDaVinciManipulatorXi
 {
 public:
@@ -37,7 +35,7 @@ public:
   std::string GetTransformsAsString() const;
 
   /*! Update all of the manipulator joint values using the da Vinci Xi API. */
-  ISI_STATUS UpdateJointValues();
+	ISI_STATUS UpdateJointValues(ISI_FLOAT* jointValuesPy);
 
 	/*! Update every link transform of the manipulator even if not associated with a model in slicer. Useful for debugging. */
   ISI_STATUS UpdateLinkTransforms();
@@ -69,13 +67,6 @@ protected:
 
 	int numberOfJoints;
 
-	/*! Python object to run Python scripts. */
-	PyObject* pName;
-	PyObject* pModule;
-	PyObject* pDict;
-	PyObject* pClass;
-	PyObject* pInstance;
-	PyObject* pValue;
 };
 
 #endif
