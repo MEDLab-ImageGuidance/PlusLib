@@ -50,13 +50,13 @@ public:
   static inline void CopyDhTable(ISI_DH_ROW* srcDhTable, ISI_DH_ROW* destDhTable);
 
 protected:
-  /*! The type of manipulator. Either ISI_ECM, ISI_PSM1, or ISI_PSM2. */
+  /*! The type of manipulator. Either IXI_USM1, IXI_USM2, IXI_USM3 or IXI_USM4. */
   IXI_MANIP_INDEX mManipIndex; 
 
-  /*! How many joints variables the manipulator has. Either ISI_NUM_ECM_JOINTS or ISI_NUM_PSM_JOINTS. */
+  /*! How many joints variables the manipulator has. IXI_NUM_USM_JOINT */
   int mNumJoints;
 
-  /*! The table of kinematic parameters. Length of 7. Used to compute robot kinematics. */
+  /*! The table of kinematic parameters. Length of 9. Used to compute robot kinematics. */
   ISI_DH_ROW* mDhTable;
 
   /*! Holds all of the link transforms for the manipulator. */
@@ -65,8 +65,7 @@ protected:
   /*! Holds the current joint values of the manipulator. */
   ISI_FLOAT* mJointValues; 
 
-	int numberOfJoints;
-
+	
 };
 
 #endif

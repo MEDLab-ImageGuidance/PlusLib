@@ -19,8 +19,8 @@ IntuitiveDaVinciManipulatorXi::IntuitiveDaVinciManipulatorXi(IXI_MANIP_INDEX man
 	
 	mNumJoints = (int)IXI_NUM_USM_JOINTS;
 	
-	mDhTable = new ISI_DH_ROW[7];
-	mTransforms = new ISI_TRANSFORM[7];
+	mDhTable = new ISI_DH_ROW[mNumJoints];
+	mTransforms = new ISI_TRANSFORM[mNumJoints];
 	mJointValues = new ISI_FLOAT[mNumJoints];
 
 	LOG_DEBUG("Created da Vinci Xi manipulator.");
@@ -76,7 +76,7 @@ std::string IntuitiveDaVinciManipulatorXi::GetJointValuesAsString() const
 std::string IntuitiveDaVinciManipulatorXi::GetDhTableAsString() const
 {
   std::stringstream str;
-  for (int iii = 0; iii < 7; iii++)
+	for (int iii = 0; iii < mNumJoints; iii++)
   {
     str << mDhTable[iii].type << ' ';
     str << mDhTable[iii].l << ' ';
@@ -109,7 +109,7 @@ void IntuitiveDaVinciManipulatorXi::SetJointValues(ISI_FLOAT* jointValues)
 //----------------------------------------------------------------------------
 void IntuitiveDaVinciManipulatorXi::CopyDhTable(ISI_DH_ROW* srcDhTable, ISI_DH_ROW* destDhTable)
 {
-  for (int iii = 0; iii < 7; iii++)
+	for (int iii = 0; iii < IXI_NUM_USM_JOINTS; iii++)
   {
     destDhTable[iii].cosa = srcDhTable[iii].cosa;
     destDhTable[iii].cosq = srcDhTable[iii].cosq;
@@ -127,7 +127,7 @@ ISI_STATUS IntuitiveDaVinciManipulatorXi::UpdateLinkTransforms()
   ISI_TRANSFORM base = dv_identity_transform(); // Compute relative to identity
 
   ISI_STATUS status = ISI_SUCCESS;
-  for (int iii = 0; iii < 7; iii++)
+  for (int iii = 0; iii < mNumJoints; iii++)
   {
     status += dv_dh_forward_kinematics(
       &(base), iii + 1, mDhTable, mJointValues, 
@@ -162,7 +162,7 @@ std::string IntuitiveDaVinciManipulatorXi::GetTransformsAsString() const
 {
   std::stringstream str;
 
-  for (int iii = 0; iii < 7; iii++)
+  for (int iii = 0; iii < mNumJoints; iii++)
   {
     str << "Frame" << iii + 1 << "ToBase\n";
     str << GetTransformAsString(mTransforms[iii])<< '\n';

@@ -25,10 +25,10 @@ vtkPlusIntuitiveDaVinciTrackerXi::vtkPlusIntuitiveDaVinciTrackerXi()
   , LastFrameNumber(0)
   , DebugSineWaveMode(false)
 	, usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL)
-  , usm1Frame1(NULL), usm1Frame2(NULL), usm1Frame3(NULL), usm1Frame4(NULL), usm1Frame5(NULL), usm1Frame6(NULL), usm1Frame7(NULL)
-  , usm2Frame1(NULL), usm2Frame2(NULL), usm2Frame3(NULL), usm2Frame4(NULL), usm2Frame5(NULL), usm2Frame6(NULL), usm2Frame7(NULL)
-	, usm3Frame1(NULL), usm3Frame2(NULL), usm3Frame3(NULL), usm3Frame4(NULL), usm3Frame5(NULL), usm3Frame6(NULL), usm3Frame7(NULL)
-	, usm4Frame1(NULL), usm4Frame2(NULL), usm4Frame3(NULL), usm4Frame4(NULL), usm4Frame5(NULL), usm4Frame6(NULL), usm4Frame7(NULL)
+	, usm1Frame1(NULL), usm1Frame2(NULL), usm1Frame3(NULL), usm1Frame4(NULL), usm1Frame5(NULL), usm1Frame6(NULL), usm1Frame7(NULL), usm1Frame8(NULL), usm1Frame9(NULL)
+	, usm2Frame1(NULL), usm2Frame2(NULL), usm2Frame3(NULL), usm2Frame4(NULL), usm2Frame5(NULL), usm2Frame6(NULL), usm2Frame7(NULL), usm2Frame8(NULL), usm2Frame9(NULL)
+	, usm3Frame1(NULL), usm3Frame2(NULL), usm3Frame3(NULL), usm3Frame4(NULL), usm3Frame5(NULL), usm3Frame6(NULL), usm3Frame7(NULL), usm3Frame8(NULL), usm3Frame9(NULL)
+	, usm4Frame1(NULL), usm4Frame2(NULL), usm4Frame3(NULL), usm4Frame4(NULL), usm4Frame5(NULL), usm4Frame6(NULL), usm4Frame7(NULL), usm4Frame8(NULL), usm4Frame9(NULL)
 {
   this->StartThreadForInternalUpdates = true; // Want a dedicated thread
   this->RequirePortNameInDeviceSetConfiguration = true;
@@ -99,6 +99,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
   GetToolByPortName("usm1Frame5", this->usm1Frame5);
   GetToolByPortName("usm1Frame6", this->usm1Frame6);
   GetToolByPortName("usm1Frame7", this->usm1Frame7);
+	GetToolByPortName("usm1Frame8", this->usm1Frame8);
+	GetToolByPortName("usm1Frame9", this->usm1Frame9);
 
   GetToolByPortName("usm2Frame1", this->usm2Frame1);
   GetToolByPortName("usm2Frame2", this->usm2Frame2);
@@ -107,6 +109,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
   GetToolByPortName("usm2Frame5", this->usm2Frame5);
   GetToolByPortName("usm2Frame6", this->usm2Frame6);
   GetToolByPortName("usm2Frame7", this->usm2Frame7);
+	GetToolByPortName("usm2Frame8", this->usm2Frame8);
+	GetToolByPortName("usm2Frame9", this->usm2Frame9);
 
 	GetToolByPortName("usm3Frame1", this->usm3Frame1);
 	GetToolByPortName("usm3Frame2", this->usm3Frame2);
@@ -115,6 +119,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
 	GetToolByPortName("usm3Frame5", this->usm3Frame5);
 	GetToolByPortName("usm3Frame6", this->usm3Frame6);
 	GetToolByPortName("usm3Frame7", this->usm3Frame7);
+	GetToolByPortName("usm3Frame8", this->usm3Frame8);
+	GetToolByPortName("usm3Frame9", this->usm3Frame9);
 
 	GetToolByPortName("usm4Frame1", this->usm4Frame1);
 	GetToolByPortName("usm4Frame2", this->usm4Frame2);
@@ -123,6 +129,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalConnect()
 	GetToolByPortName("usm4Frame5", this->usm4Frame5);
 	GetToolByPortName("usm4Frame6", this->usm4Frame6);
 	GetToolByPortName("usm4Frame7", this->usm4Frame7);
+	GetToolByPortName("usm4Frame8", this->usm4Frame8);
+	GetToolByPortName("usm4Frame9", this->usm4Frame9);
 
   LOG_DEBUG("Connection successful.");
 
@@ -204,6 +212,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
   tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
   tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
   tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
+	tmpVtkMatrix->SetElement(1, 3, jointValues[7]);
+	tmpVtkMatrix->SetElement(2, 0, jointValues[8]);
   unsigned long frameNumber = usm1Joints->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm1Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
@@ -216,6 +226,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
   tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
   tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
   tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
+	tmpVtkMatrix->SetElement(1, 3, jointValues[7]);
+	tmpVtkMatrix->SetElement(2, 0, jointValues[8]);
   frameNumber = usm2Joints->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm2Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
@@ -228,6 +240,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
 	tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
 	tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
+	tmpVtkMatrix->SetElement(1, 3, jointValues[7]);
+	tmpVtkMatrix->SetElement(2, 0, jointValues[8]);
 	frameNumber = usm3Joints->GetFrameNumber() + 1;
 	ToolTimeStampedUpdate(usm3Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
@@ -240,6 +254,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	tmpVtkMatrix->SetElement(1, 0, jointValues[4]);
 	tmpVtkMatrix->SetElement(1, 1, jointValues[5]);
 	tmpVtkMatrix->SetElement(1, 2, jointValues[6]);
+	tmpVtkMatrix->SetElement(1, 3, jointValues[7]);
+	tmpVtkMatrix->SetElement(2, 0, jointValues[8]);
 	frameNumber = usm4Joints->GetFrameNumber() + 1;
 	ToolTimeStampedUpdate(usm4Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
@@ -253,6 +269,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	PUBLISH_ISI_TRANSFORM(usm1Frame5, usm1Transforms + 4);
 	PUBLISH_ISI_TRANSFORM(usm1Frame6, usm1Transforms + 5);
 	PUBLISH_ISI_TRANSFORM(usm1Frame7, usm1Transforms + 6);
+	PUBLISH_ISI_TRANSFORM(usm1Frame8, usm1Transforms + 7);
+	PUBLISH_ISI_TRANSFORM(usm1Frame9, usm1Transforms + 8);
 
   // Update all of the usm2Frames
 	ISI_TRANSFORM* usm2Transforms = this->DaVinci->GetUsm2()->GetTransforms();
@@ -264,6 +282,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	PUBLISH_ISI_TRANSFORM(usm2Frame5, usm2Transforms + 4);
 	PUBLISH_ISI_TRANSFORM(usm2Frame6, usm2Transforms + 5);
 	PUBLISH_ISI_TRANSFORM(usm2Frame7, usm2Transforms + 6);
+	PUBLISH_ISI_TRANSFORM(usm2Frame8, usm2Transforms + 7);
+	PUBLISH_ISI_TRANSFORM(usm2Frame9, usm2Transforms + 8);
 
 	// Update all of the usm2Frames
 	ISI_TRANSFORM* usm3Transforms = this->DaVinci->GetUsm3()->GetTransforms();
@@ -275,6 +295,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	PUBLISH_ISI_TRANSFORM(usm3Frame5, usm3Transforms + 4);
 	PUBLISH_ISI_TRANSFORM(usm3Frame6, usm3Transforms + 5);
 	PUBLISH_ISI_TRANSFORM(usm3Frame7, usm3Transforms + 6);
+	PUBLISH_ISI_TRANSFORM(usm3Frame8, usm3Transforms + 7);
+	PUBLISH_ISI_TRANSFORM(usm3Frame9, usm3Transforms + 8);
 
 	// Update all of the usm2Frames
 	ISI_TRANSFORM* usm4Transforms = this->DaVinci->GetUsm4()->GetTransforms();
@@ -286,6 +308,8 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::InternalUpdate()
 	PUBLISH_ISI_TRANSFORM(usm4Frame5, usm4Transforms + 4);
 	PUBLISH_ISI_TRANSFORM(usm4Frame6, usm4Transforms + 5);
 	PUBLISH_ISI_TRANSFORM(usm4Frame7, usm4Transforms + 6);
+	PUBLISH_ISI_TRANSFORM(usm4Frame8, usm4Transforms + 7);
+	PUBLISH_ISI_TRANSFORM(usm4Frame9, usm4Transforms + 8);
 
   return PLUS_SUCCESS;
 }
@@ -365,17 +389,20 @@ static void ProcessDhString(std::string& str)
 
 static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector, ISI_DH_ROW* destIsiDhTable)
 {
-  for (int iii = 0; iii < 7; iii++)
+	const int numDhRows = (int)IXI_NUM_USM_JOINTS;
+
+	for (int iii = 0; iii < numDhRows; iii++)
   {
     try
     {
-      destIsiDhTable[iii].type = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 0]);
-      destIsiDhTable[iii].l = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 1]);
-      destIsiDhTable[iii].sina = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 2]);
-      destIsiDhTable[iii].cosa = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 3]);
-      destIsiDhTable[iii].d = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 4]);
-      destIsiDhTable[iii].sinq = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 5]);
-      destIsiDhTable[iii].cosq = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 6]);
+			// while reaiding for first joint iii = 0 and will read the first row. And so on...
+			destIsiDhTable[iii].type = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 0]);
+			destIsiDhTable[iii].l = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 1]);
+			destIsiDhTable[iii].sina = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 2]);
+			destIsiDhTable[iii].cosa = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 3]);
+			destIsiDhTable[iii].d = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 4]);
+			destIsiDhTable[iii].sinq = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 5]);
+			destIsiDhTable[iii].cosq = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 6]);
     }
     catch (...)
     {
@@ -384,12 +411,12 @@ static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector
   }
 }
 
-PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, std::string usm3DhTable
-											,std::string usm4DhTable)
+PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, 
+	std::string usm3DhTable,std::string usm4DhTable)
 {
 	std::vector<std::string> usm1TokenVector, usm2TokenVector, usm3TokenVector, usm4TokenVector;
 
-	const int numDhRows = 7; const int numDhCols = 7;
+	const int numDhRows = (int)IXI_NUM_USM_JOINTS; const int numDhCols = 7;
 	int numElem = numDhRows*numDhCols;
 
 	ProcessDhString(usm1DhTable);

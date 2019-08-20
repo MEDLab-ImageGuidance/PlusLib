@@ -217,18 +217,30 @@ ISI_FLOAT* IntuitiveDaVinciXi::GetJointValuesFromPy(IXI_MANIP_INDEX mIxiManipInd
 {
 	PyObject *pList;
 	ISI_FLOAT outputArray[IXI_NUM_USM_JOINTS];
+	ISI_FLOAT tmpArray[IXI_NUM_USM_JOINT_VALS];
 	
 
-	pList = PyList_New(IXI_NUM_USM_JOINTS);
+	pList = PyList_New(IXI_NUM_USM_JOINT_VALS);
 	pList = PyObject_CallMethod(pInstance, "getUsmJointValues", NULL, mIxiManipIndex);
 
 	if (pList != NULL)
 	{
-		for (int iii = 0; iii < IXI_NUM_USM_JOINTS; iii++)
+		for (int iii = 0; iii < IXI_NUM_USM_JOINT_VALS; iii++)
 		{
-			outputArray[iii] = PyLong_AsLong(PyList_GetItem(pList, iii));
-			if (iii == 5) outputArray[iii] *= 1000.0; // because of prismatic joint to convert mm
+			tmpArray[iii] = PyLong_AsLong(PyList_GetItem(pList, iii));
+			if (iii == 3) tmpArray[iii] *= 1000.0; // because of prismatic joint to convert mm
 		}
+
+		/* Arrange array again because of parellelogram of links 2,3 and 4 */
+		outputArray[0] = tmpArray[0];
+		outputArray[1] = tmpArray[1];
+		outputArray[2] = -(tmpArray[2]);
+		outputArray[3] = tmpArray[2];
+		outputArray[4] = tmpArray[2];
+		outputArray[5] = tmpArray[3];
+		outputArray[6] = tmpArray[4];
+		outputArray[7] = tmpArray[5];
+		outputArray[8] = tmpArray[6];
 	}
 	else
 	{
@@ -295,10 +307,10 @@ ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValuesSineWave()
 	clock_t ticks = clock();
 	float t = ((float)ticks) / ((float)CLOCKS_PER_SEC);
 
-	ISI_FLOAT usm1JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.0*t), 0.5*sin(1.5*t), sin(1.7*t), 50.0*sin(2.0*t) + 75.0, sin(0.7*t), sin(0.5*t), sin(0.8*t) };
-	ISI_FLOAT usm2JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.1*t), 0.5*sin(1.4*t), sin(1.6*t), 50.0*sin(2.1*t) + 75.0, sin(0.6*t), sin(0.9*t), sin(1.8*t) };
-	ISI_FLOAT usm3JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(0.9*t), 0.5*sin(1.6*t), sin(1.8*t), 50.0*sin(1.9*t) + 75.0, sin(0.8*t), sin(0.8*t), sin(1.6*t) };
-	ISI_FLOAT usm4JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.2*t), 0.5*sin(1.7*t), sin(1.9*t), 50.0*sin(2.3*t) + 75.0, sin(0.4*t), sin(0.2*t), sin(1.2*t) };
+	ISI_FLOAT usm1JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.0*t), 0.5*sin(1.5*t), -sin(1.7*t), sin(1.7*t), sin(1.7*t), 50.0*sin(2.0*t) + 75.0, sin(0.7*t), sin(0.5*t), sin(0.8*t) };
+	ISI_FLOAT usm2JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.1*t), 0.5*sin(1.4*t), -sin(1.6*t), sin(1.6*t), sin(1.6*t), 50.0*sin(2.1*t) + 75.0, sin(0.6*t), sin(0.9*t), sin(1.8*t) };
+	ISI_FLOAT usm3JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(0.9*t), 0.5*sin(1.6*t), -sin(1.8*t), sin(1.8*t), sin(1.8*t), 50.0*sin(1.9*t) + 75.0, sin(0.8*t), sin(0.8*t), sin(1.6*t) };
+	ISI_FLOAT usm4JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.2*t), 0.5*sin(1.7*t), -sin(1.9*t), sin(1.9*t), sin(1.9*t), 50.0*sin(2.3*t) + 75.0, sin(0.4*t), sin(0.2*t), sin(1.2*t) };
 
 	this->mUsm1->SetJointValues(usm1JointValues);
 	this->mUsm2->SetJointValues(usm2JointValues);

@@ -49,6 +49,7 @@ public:
 	IntuitiveDaVinciManipulatorXi* GetUsm3() const;
 	IntuitiveDaVinciManipulatorXi* GetUsm4() const;
 
+	/*! Get Python list from Xi API and convert it to an C++ array. */
 	ISI_FLOAT* IntuitiveDaVinciXi::GetJointValuesFromPy(IXI_MANIP_INDEX mIxiManipIndex);
 
   /*! Update joint values using the da Vinci Xi API for all of the manipulators. */

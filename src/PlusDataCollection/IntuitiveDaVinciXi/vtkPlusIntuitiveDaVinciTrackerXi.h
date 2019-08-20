@@ -74,8 +74,8 @@ private:
   static inline void ConvertIsiTransformToVtkMatrix(ISI_TRANSFORM* isiMatrix, vtkMatrix4x4& vtkMatrix);
 
   /*! From three strings (likely obtained from the xml), set the robot DH tables. */
-	PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, std::string usm3DhTable
-		,std::string usm4DhTable);
+	PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string usm1DhTable, std::string usm2DhTable, 
+		std::string usm3DhTable, std::string usm4DhTable);
 
 private:
   /*************** ROBOT JOINT VALUES ***************/
@@ -115,6 +115,13 @@ private:
   /*! Transform from Frame7 of USM1 to USM1 Base. */
   vtkPlusDataSource* usm1Frame7;
 
+	/*! Transform from Frame8 of USM1 to USM1 Base. */
+	vtkPlusDataSource* usm1Frame8;
+
+	/*! Transform from Frame9 of USM1 to USM1 Base. */
+	vtkPlusDataSource* usm1Frame9;
+
+
   /*************** USM2 LINK TRANSFORMS ***************/
 
   /*! Transform from Frame1 of USM2 to USM2 Base. */
@@ -137,6 +144,12 @@ private:
 
   /*! Transform from Frame7 of USM2 to USM2 Base. */
   vtkPlusDataSource* usm2Frame7;
+
+	/*! Transform from Frame8 of USM2 to USM2 Base. */
+	vtkPlusDataSource* usm2Frame8;
+
+	/*! Transform from Frame9 of USM2 to USM2 Base. */
+	vtkPlusDataSource* usm2Frame9;
 
 	/*************** USM3 LINK TRANSFORMS ***************/
 
@@ -161,6 +174,12 @@ private:
 	/*! Transform from Frame7 of USM3 to USM3 Base. */
 	vtkPlusDataSource* usm3Frame7;
 
+	/*! Transform from Frame8 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame8;
+
+	/*! Transform from Frame9 of USM3 to USM3 Base. */
+	vtkPlusDataSource* usm3Frame9;
+
 	/*************** USM4 LINK TRANSFORMS ***************/
 
 	/*! Transform from Frame1 of USM4 to USM4 Base. */
@@ -183,6 +202,12 @@ private:
 
 	/*! Transform from Frame7 of USM4 to USM4 Base. */
 	vtkPlusDataSource* usm4Frame7;
+
+	/*! Transform from Frame8 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame8;
+
+	/*! Transform from Frame9 of USM4 to USM4 Base. */
+	vtkPlusDataSource* usm4Frame9;
 
 };
 
