@@ -23,7 +23,7 @@ vtkPlusIntuitiveDaVinciTrackerXi::vtkPlusIntuitiveDaVinciTrackerXi()
   : vtkPlusDevice()
   , DaVinci(new IntuitiveDaVinciXi())
   , LastFrameNumber(0)
-  , DebugSineWaveMode(true)
+  , DebugSineWaveMode(false)
 	, usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL)
 	, usm1Frame1(NULL), usm1Frame2(NULL), usm1Frame3(NULL), usm1Frame4(NULL), usm1Frame5(NULL), usm1Frame6(NULL), usm1Frame7(NULL), usm1Frame8(NULL), usm1Frame9(NULL)
 	, usm2Frame1(NULL), usm2Frame2(NULL), usm2Frame3(NULL), usm2Frame4(NULL), usm2Frame5(NULL), usm2Frame6(NULL), usm2Frame7(NULL), usm2Frame8(NULL), usm2Frame9(NULL)
@@ -395,14 +395,15 @@ static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector
   {
     try
     {
+			// We are using 7 * because there are 7 elements in a dh row
 			// while reaiding for first joint iii = 0 and will read the first row. And so on...
-			destIsiDhTable[iii].type = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 0]);
-			destIsiDhTable[iii].l = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 1]);
-			destIsiDhTable[iii].sina = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 2]);
-			destIsiDhTable[iii].cosa = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 3]);
-			destIsiDhTable[iii].d = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 4]);
-			destIsiDhTable[iii].sinq = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 5]);
-			destIsiDhTable[iii].cosq = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 6]);
+			destIsiDhTable[iii].type = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 0]);
+			destIsiDhTable[iii].l = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 1]);
+			destIsiDhTable[iii].sina = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 2]);
+			destIsiDhTable[iii].cosa = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 3]);
+			destIsiDhTable[iii].d = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 4]);
+			destIsiDhTable[iii].sinq = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 5]);
+			destIsiDhTable[iii].cosq = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 6]);
     }
     catch (...)
     {
