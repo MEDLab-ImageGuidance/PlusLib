@@ -317,6 +317,8 @@ ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValuesSineWave()
 	this->mUsm3->SetJointValues(usm3JointValues);
 	this->mUsm4->SetJointValues(usm4JointValues);
 
+	LOG_DEBUG("Joint values are setted by SineWave Function."); // This is added for debugging.
+
 	return mStatus;
 }
 

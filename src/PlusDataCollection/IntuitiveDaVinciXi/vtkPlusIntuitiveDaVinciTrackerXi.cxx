@@ -23,7 +23,7 @@ vtkPlusIntuitiveDaVinciTrackerXi::vtkPlusIntuitiveDaVinciTrackerXi()
   : vtkPlusDevice()
   , DaVinci(new IntuitiveDaVinciXi())
   , LastFrameNumber(0)
-  , DebugSineWaveMode(false)
+  , DebugSineWaveMode(true)
 	, usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL)
 	, usm1Frame1(NULL), usm1Frame2(NULL), usm1Frame3(NULL), usm1Frame4(NULL), usm1Frame5(NULL), usm1Frame6(NULL), usm1Frame7(NULL), usm1Frame8(NULL), usm1Frame9(NULL)
 	, usm2Frame1(NULL), usm2Frame2(NULL), usm2Frame3(NULL), usm2Frame4(NULL), usm2Frame5(NULL), usm2Frame6(NULL), usm2Frame7(NULL), usm2Frame8(NULL), usm2Frame9(NULL)
@@ -389,20 +389,20 @@ static void ProcessDhString(std::string& str)
 
 static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector, ISI_DH_ROW* destIsiDhTable)
 {
-	const int numDhRows = (int)IXI_NUM_USM_JOINTS;
+	
 
-	for (int iii = 0; iii < numDhRows; iii++)
+	for (int iii = 0; iii < 9; iii++)
   {
     try
     {
 			// while reaiding for first joint iii = 0 and will read the first row. And so on...
-			destIsiDhTable[iii].type = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 0]);
-			destIsiDhTable[iii].l = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 1]);
-			destIsiDhTable[iii].sina = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 2]);
-			destIsiDhTable[iii].cosa = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 3]);
-			destIsiDhTable[iii].d = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 4]);
-			destIsiDhTable[iii].sinq = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 5]);
-			destIsiDhTable[iii].cosq = (ISI_FLOAT)std::stof(srcTokenVector[numDhRows * iii + 6]);
+			destIsiDhTable[iii].type = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 0]);
+			destIsiDhTable[iii].l = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 1]);
+			destIsiDhTable[iii].sina = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 2]);
+			destIsiDhTable[iii].cosa = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 3]);
+			destIsiDhTable[iii].d = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 4]);
+			destIsiDhTable[iii].sinq = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 5]);
+			destIsiDhTable[iii].cosq = (ISI_FLOAT)std::stof(srcTokenVector[9 * iii + 6]);
     }
     catch (...)
     {
@@ -416,7 +416,7 @@ PlusStatus vtkPlusIntuitiveDaVinciTrackerXi::SetDhTablesFromStrings(std::string 
 {
 	std::vector<std::string> usm1TokenVector, usm2TokenVector, usm3TokenVector, usm4TokenVector;
 
-	const int numDhRows = (int)IXI_NUM_USM_JOINTS; const int numDhCols = 7;
+	const int numDhRows = 9; const int numDhCols = 7;
 	int numElem = numDhRows*numDhCols;
 
 	ProcessDhString(usm1DhTable);
