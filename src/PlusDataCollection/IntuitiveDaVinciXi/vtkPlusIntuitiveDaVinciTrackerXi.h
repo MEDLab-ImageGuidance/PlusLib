@@ -94,120 +94,132 @@ private:
 
   /*************** USM1 LINK TRANSFORMS ***************/
 
-  /*! Transform from Frame1 of USM1 to USM1 Base. */
+  /*! Transform from Frame1 of USM1 to USM1 Frame1. */
   vtkPlusDataSource* usm1Frame1;
 
-  /*! Transform from Frame2 of USM1 to USM1 Base. */
+  /*! Transform from Frame2 of USM1 to USM1 Frame1. */
   vtkPlusDataSource* usm1Frame2;
 
-  /*! Transform from Frame3 of USM1 to USM1 Base. */
+  /*! Transform from Frame3 of USM1 to USM1 Frame1. */
   vtkPlusDataSource* usm1Frame3;
 
-  /*! Transform from Frame4 of USM1 to USM1 Base. */
+  /*! Transform from Frame4 of USM1 to USM1 Frame1. */
   vtkPlusDataSource* usm1Frame4;
 
-  /*! Transform from Frame5 of USM1 to USM1 Base. */
+  /*! Transform from Frame5 of USM1 to USM1 Frame1. */
   vtkPlusDataSource* usm1Frame5;
 
-  /*! Transform from Frame6 of USM1 to USM1 Base. */
+  /*! Transform from Frame6 of USM1 to USM1 Frame1. */
   vtkPlusDataSource* usm1Frame6;
 
-  /*! Transform from Frame7 of USM1 to USM1 Base. */
+  /*! Transform from Frame7 of USM1 to USM1 Frame1. */
   vtkPlusDataSource* usm1Frame7;
 
-	/*! Transform from Frame8 of USM1 to USM1 Base. */
+	/*! Transform from Frame8 of USM1 to USM1 Frame1. */
 	vtkPlusDataSource* usm1Frame8;
 
-	/*! Transform from Frame9 of USM1 to USM1 Base. */
+	/*! Transform from Frame9 of USM1 to USM1 Frame1. */
 	vtkPlusDataSource* usm1Frame9;
+
+	/*! Transform from Frame10 of USM1 to USM1 Frame1. */
+	vtkPlusDataSource* usm1Frame10;
 
 
   /*************** USM2 LINK TRANSFORMS ***************/
 
-  /*! Transform from Frame1 of USM2 to USM2 Base. */
+  /*! Transform from Frame1 of USM2 to USM2 Frame1. */
   vtkPlusDataSource* usm2Frame1;
 
-  /*! Transform from Frame2 of USM2 to USM2 Base. */
+  /*! Transform from Frame2 of USM2 to USM2 Frame1. */
   vtkPlusDataSource* usm2Frame2;
 
-  /*! Transform from Frame3 of USM2 to USM2 Base. */
+  /*! Transform from Frame3 of USM2 to USM2 Frame1. */
   vtkPlusDataSource* usm2Frame3;
 
-  /*! Transform from Frame4 of USM2 to USM2 Base. */
+  /*! Transform from Frame4 of USM2 to USM2 Frame1. */
   vtkPlusDataSource* usm2Frame4;
 
-  /*! Transform from Frame5 of USM2 to USM2 Base. */
+  /*! Transform from Frame5 of USM2 to USM2 Frame1. */
   vtkPlusDataSource* usm2Frame5;
 
-  /*! Transform from Frame6 of USM2 to USM2 Base. */
+  /*! Transform from Frame6 of USM2 to USM2 Frame1. */
   vtkPlusDataSource* usm2Frame6;
 
-  /*! Transform from Frame7 of USM2 to USM2 Base. */
+  /*! Transform from Frame7 of USM2 to USM2 Frame1. */
   vtkPlusDataSource* usm2Frame7;
 
-	/*! Transform from Frame8 of USM2 to USM2 Base. */
+	/*! Transform from Frame8 of USM2 to USM2 Frame1. */
 	vtkPlusDataSource* usm2Frame8;
 
-	/*! Transform from Frame9 of USM2 to USM2 Base. */
+	/*! Transform from Frame9 of USM2 to USM2 Frame1. */
 	vtkPlusDataSource* usm2Frame9;
+
+	/*! Transform from Frame10 of USM2 to USM2 Frame1. */
+	vtkPlusDataSource* usm2Frame10;
 
 	/*************** USM3 LINK TRANSFORMS ***************/
 
-	/*! Transform from Frame1 of USM3 to USM3 Base. */
+	/*! Transform from Frame1 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame1;
 
-	/*! Transform from Frame2 of USM3 to USM3 Base. */
+	/*! Transform from Frame2 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame2;
 
-	/*! Transform from Frame3 of USM3 to USM3 Base. */
+	/*! Transform from Frame3 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame3;
 
-	/*! Transform from Frame4 of USM3 to USM3 Base. */
+	/*! Transform from Frame4 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame4;
 
-	/*! Transform from Frame5 of USM3 to USM3 Base. */
+	/*! Transform from Frame5 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame5;
 
-	/*! Transform from Frame6 of USM3 to USM3 Base. */
+	/*! Transform from Frame6 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame6;
 
-	/*! Transform from Frame7 of USM3 to USM3 Base. */
+	/*! Transform from Frame7 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame7;
 
-	/*! Transform from Frame8 of USM3 to USM3 Base. */
+	/*! Transform from Frame8 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame8;
 
-	/*! Transform from Frame9 of USM3 to USM3 Base. */
+	/*! Transform from Frame9 of USM3 to USM3 Frame1. */
 	vtkPlusDataSource* usm3Frame9;
+
+	/*! Transform from Frame10 of USM3 to USM3 Frame1. */
+	vtkPlusDataSource* usm3Frame10;
 
 	/*************** USM4 LINK TRANSFORMS ***************/
 
-	/*! Transform from Frame1 of USM4 to USM4 Base. */
+	/*! Transform from Frame1 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame1;
 
-	/*! Transform from Frame2 of USM4 to USM4 Base. */
+	/*! Transform from Frame2 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame2;
 
-	/*! Transform from Frame3 of USM4 to USM4 Base. */
+	/*! Transform from Frame3 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame3;
 
-	/*! Transform from Frame4 of USM4 to USM4 Base. */
+	/*! Transform from Frame4 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame4;
 
-	/*! Transform from Frame5 of USM4 to USM4 Base. */
+	/*! Transform from Frame5 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame5;
 
-	/*! Transform from Frame6 of USM4 to USM4 Base. */
+	/*! Transform from Frame6 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame6;
 
-	/*! Transform from Frame7 of USM4 to USM4 Base. */
+	/*! Transform from Frame7 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame7;
 
-	/*! Transform from Frame8 of USM4 to USM4 Base. */
+	/*! Transform from Frame8 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame8;
 
-	/*! Transform from Frame9 of USM4 to USM4 Base. */
+	/*! Transform from Frame9 of USM4 to USM4 Frame1. */
 	vtkPlusDataSource* usm4Frame9;
+
+	/*! Transform from Frame10 of USM4 to USM4 Frame1. */
+	vtkPlusDataSource* usm4Frame10;
 
 };
 

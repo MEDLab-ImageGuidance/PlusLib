@@ -64,7 +64,7 @@ ISI_STATUS IntuitiveDaVinciManipulatorXi::UpdateJointValues(ISI_FLOAT* jointValu
 std::string IntuitiveDaVinciManipulatorXi::GetJointValuesAsString() const
 {
   std::stringstream str;
-  for (int iii = 0; iii < 9; iii++)
+  for (int iii = 0; iii < mNumJoints; iii++)
   {
     str << mJointValues[iii] << "  ";
   }
@@ -76,7 +76,7 @@ std::string IntuitiveDaVinciManipulatorXi::GetJointValuesAsString() const
 std::string IntuitiveDaVinciManipulatorXi::GetDhTableAsString() const
 {
   std::stringstream str;
-	for (int iii = 0; iii < 9; iii++)
+	for (int iii = 0; iii < mNumJoints; iii++)
   {
     str << mDhTable[iii].type << ' ';
     str << mDhTable[iii].l << ' ';
@@ -109,7 +109,7 @@ void IntuitiveDaVinciManipulatorXi::SetJointValues(ISI_FLOAT* jointValues)
 //----------------------------------------------------------------------------
 void IntuitiveDaVinciManipulatorXi::CopyDhTable(ISI_DH_ROW* srcDhTable, ISI_DH_ROW* destDhTable)
 {
-	for (int iii = 0; iii < 9; iii++)
+	for (int iii = 0; iii < IXI_NUM_USM_JOINTS; iii++)
   {
     destDhTable[iii].cosa = srcDhTable[iii].cosa;
     destDhTable[iii].cosq = srcDhTable[iii].cosq;
