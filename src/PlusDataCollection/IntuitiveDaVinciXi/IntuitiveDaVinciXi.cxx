@@ -308,10 +308,10 @@ ISI_STATUS IntuitiveDaVinciXi::UpdateAllJointValuesSineWave()
 	clock_t ticks = clock();
 	float t = ((float)ticks) / ((float)CLOCKS_PER_SEC);
 
-	ISI_FLOAT usm1JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.0*t), 0.5*sin(1.5*t), -sin(1.7*t), sin(1.7*t), sin(1.7*t), 50.0*sin(2.0*t) + 75.0, sin(0.7*t), sin(0.5*t), sin(0.8*t), sin(0.5*t)};
-	ISI_FLOAT usm2JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(1.1*t), 0.5*sin(1.4*t), -sin(1.6*t), sin(1.6*t), sin(1.6*t), 50.0*sin(2.1*t) + 75.0, sin(0.6*t), sin(0.9*t), sin(1.8*t), sin(0.5*t)};
-	ISI_FLOAT usm3JointValues[IXI_NUM_USM_JOINTS] = { 0.5*sin(0.9*t), 0.5*sin(1.6*t), -sin(1.8*t), sin(1.8*t), sin(1.8*t), 50.0*sin(1.9*t) + 75.0, sin(0.8*t), sin(0.8*t), sin(1.6*t), sin(0.5*t)};
-	ISI_FLOAT usm4JointValues[IXI_NUM_USM_JOINTS] = { 0.0, 0.0, 0.5*sin(0.9*t), 0.0, 0.0, 0.0, sin(1.7*t), sin(0.7*t), sin(0.5*t), sin(0.8*t) };
+	ISI_FLOAT usm1JointValues[IXI_NUM_USM_JOINTS] = { 0.1*sin(1.1*t), 0.5*sin(1.1*t), 0.5*sin(1.4*t), -0.5*sin(1.4*t), 0.5*sin(1.4*t), 50.0*sin(2.1*t) + 175.0, sin(1.6*t), sin(0.6*t), sin(0.9*t), sin(1.8*t) };
+	ISI_FLOAT usm2JointValues[IXI_NUM_USM_JOINTS] = { 0.1*sin(1.1*t), 0.5*sin(1.1*t), 0.5*sin(1.4*t), -0.5*sin(1.4*t), 0.5*sin(1.4*t), 50.0*sin(2.1*t) + 175.0, sin(1.6*t), sin(0.6*t), sin(0.9*t), sin(1.8*t) };
+	ISI_FLOAT usm3JointValues[IXI_NUM_USM_JOINTS] = { 0.1*sin(1.1*t), 0.5*sin(1.1*t), 0.5*sin(1.4*t), -0.5*sin(1.4*t), 0.5*sin(1.4*t), 50.0*sin(2.1*t) + 175.0, sin(1.6*t), sin(0.6*t), sin(0.9*t), sin(1.8*t) };
+	ISI_FLOAT usm4JointValues[IXI_NUM_USM_JOINTS] = { 0.1*sin(1.1*t), 0.5*sin(1.1*t), 0.5*sin(1.4*t), -0.5*sin(1.4*t), 0.5*sin(1.4*t), 50.0*sin(2.1*t) + 175.0, sin(1.6*t), sin(0.6*t), sin(0.9*t), sin(1.8*t)};
 
 	this->mUsm1->SetJointValues(usm1JointValues);
 	this->mUsm2->SetJointValues(usm2JointValues);
