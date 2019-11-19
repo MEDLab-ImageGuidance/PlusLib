@@ -12,7 +12,8 @@ See License.txt for details.
 #include "vtkPlusDataCollectionExport.h"
 #include "vtkPlusDevice.h"
 
-#include "IntuitiveDaVinci.h"
+#include "DaVinciXiCApi.h"
+#include "IntuitiveDaVinciKinematics.h"
 
 /* This class talks with the da Vinci Surgical System via the class IntuitiveDaVinci. */
 class vtkPlusDataCollectionExport vtkPlusIntuitiveDaVinciTracker : public vtkPlusDevice
