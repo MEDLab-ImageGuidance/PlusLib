@@ -1458,20 +1458,20 @@ IF(PLUS_USE_IntuitiveDaVinci)
   ENDIF ()
 
   LIST(APPEND IntuitiveDaVinci_STATIC_LIBS
-    ${IntuitiveDaVinci_LIBRARY_DIR}/dv_api${CMAKE_STATIC_LIBRARY_SUFFIX}
-	${IntuitiveDaVinci_LIBRARY_DIR}/dv_api_math${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${IntuitiveDaVinci_LIBRARY_DIR}/DaVinciXiCApi${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
 
   LIST(APPEND IntuitiveDaVinci_SHARED_LIBS
-    ${IntuitiveDaVinci_BINARY_DIR}/dv_api${CMAKE_SHARED_LIBRARY_SUFFIX}
-	${IntuitiveDaVinci_BINARY_DIR}/dv_api_math${CMAKE_SHARED_LIBRARY_SUFFIX}
+    ${IntuitiveDaVinci_BINARY_DIR}/DaVinciXiCApi${CMAKE_SHARED_LIBRARY_SUFFIX}
+	  ${IntuitiveDaVinci_BINARY_DIR}/libsodium${CMAKE_SHARED_LIBRARY_SUFFIX}
+    ${IntuitiveDaVinci_BINARY_DIR}/libzmq-v140-mt-4_3_2${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
 
   mark_as_advanced(IntuitiveDaVinci_STATIC_LIBS)
   mark_as_advanced(IntuitiveDaVinci_SHARED_LIBS)
 
   LIST(APPEND ${PROJECT_NAME}_INCLUDE_DIRS
-    ${IntuitiveDaVinci_INCLUDE_DIRS}
+    ${IntuitiveDaVinci_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/IntuitiveDaVinci
   )
   
