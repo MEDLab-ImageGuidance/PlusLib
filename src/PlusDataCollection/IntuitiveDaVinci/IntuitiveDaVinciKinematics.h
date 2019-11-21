@@ -20,10 +20,16 @@ enum UsmJointType
   PRISMATIC,
 };
 
-struct UsmDhRow
+class UsmDhRow
 {
-  UsmJointType jointType;
-  double a, alpha, beta, d, theta;
+public:
+  void SetRow(UsmJointType jointType, double a, double alpha, double beta, double d, double theta);
+  void GetTransform(vtkMatrix4x4* transformOut, vtkMatrix4x4* transformBase, double jointValue);
+  UsmJointType GetJointType() { return mJointType; }
+
+protected:
+  UsmJointType mJointType;
+  double mA, mAlpha, mBeta, mD, mTheta;
 };
 
 class UsmTransforms
@@ -31,6 +37,7 @@ class UsmTransforms
 public:
   UsmTransforms();
   ~UsmTransforms();
+  void Copy(UsmTransforms* transformsOut);
 
 public:
   vtkMatrix4x4* sujToWorld;
@@ -55,7 +62,6 @@ public:
   void SetJointValues(UsmJointValues* jointValues);
   void ComputeKinematics();
   void GetTransforms(UsmTransforms* transformsOut);
-  void ComputeKinematicsAndGetTransforms(UsmTransforms* transformsOut, UsmJointValues* jointValues);
 
 protected:
   UsmTransforms mTransforms;
