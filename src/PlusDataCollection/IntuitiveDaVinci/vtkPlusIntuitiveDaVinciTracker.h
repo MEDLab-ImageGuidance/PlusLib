@@ -15,6 +15,8 @@ See License.txt for details.
 #include "DaVinciXiCApi.h"
 #include "IntuitiveDaVinciKinematics.h"
 
+using namespace DaVinciXi;
+
 /* This class talks with the da Vinci Surgical System via the class IntuitiveDaVinci. */
 class vtkPlusDataCollectionExport vtkPlusIntuitiveDaVinciTracker : public vtkPlusDevice
 {
@@ -34,16 +36,14 @@ public:
   /*! Write current da Vinci configuration settings to XML */
   virtual PlusStatus WriteConfiguration(vtkXMLDataElement* rootConfigElement);
 
-  IntuitiveDaVinci* GetDaVinci() const;
-
 protected:
   vtkPlusIntuitiveDaVinciTracker();
   ~vtkPlusIntuitiveDaVinciTracker();
 
-  /*! Connect to the da Vinci API*/
+  /*! Connect to the da Vinci Xi API*/
   virtual PlusStatus InternalConnect();
 
-  /*! Disconnect from the da Vinci API */
+  /*! Disconnect from the da Vinci Xi API */
   virtual PlusStatus InternalDisconnect();
 
   /*!  Start the streaming of kinematics data and/or events. */
@@ -55,119 +55,120 @@ protected:
   /*! Update method for updating joint values, base frames, and kinematics transforms. */
   virtual PlusStatus InternalUpdate();
 
-  vtkSetMacro(DebugSineWaveMode, bool);
+  //vtkSetMacro(DebugSineWaveMode, bool);
 
 protected:
-  /*! Pointer to the IntuitiveDaVinci class instance */
-  IntuitiveDaVinci*   DaVinci;
+  /*! Pointer to the DaVinciXiCApi class instance for streaming joint values*/
+  DaVinciXiCApi* api;
+
+  /*! Pointer to each of the IntuitiveDaVinciKinematics class instances for computing transforms*/
+  UsmKinematicModel* usm1;
+  UsmKinematicModel* usm2;
+  UsmKinematicModel* usm3;
+  UsmKinematicModel* usm4;
 
   /*! Index of the last frame number. This is used for providing a frame number when the tracker doesn't return any transform */
-  unsigned long       LastFrameNumber;
+  unsigned long LastFrameNumber;
 
   /*! These are some additional flags that we can load from the xml to put the system into different modes. */
-  bool DebugSineWaveMode;
+  //bool DebugSineWaveMode;
 
 private:
   vtkPlusIntuitiveDaVinciTracker(const vtkPlusIntuitiveDaVinciTracker&);
   void operator=(const vtkPlusIntuitiveDaVinciTracker&);
 
   /*! Convert very explicitly between the two represeations of transforms. */
-  static inline void ConvertIsiTransformToVtkMatrix(ISI_TRANSFORM* isiMatrix, vtkMatrix4x4& vtkMatrix);
+  //static inline void ConvertIsiTransformToVtkMatrix(ISI_TRANSFORM* isiMatrix, vtkMatrix4x4& vtkMatrix);
 
   /*! From three strings (likely obtained from the xml), set the robot DH tables. */
-  PlusStatus SetDhTablesFromStrings(std::string psm1DhTable, std::string psm2DhTable, std::string ecmDhTable);
+  //PlusStatus SetDhTablesFromStrings(std::string psm1DhTable, std::string psm2DhTable, std::string ecmDhTable);
 
 private:
   /*************** ROBOT JOINT VALUES ***************/
-
-  /*! The 7 joint values of PSM1 stored and broadcasted in the first 7 elements of a matrix. */
-  vtkPlusDataSource* psm1Joints;
-
-  /*! The 7 joint values of PSM2 stored and broadcasted in the first 7 elements of a matrix. */
-  vtkPlusDataSource* psm2Joints;
-
-  /*! The 7 joint values of ECM stored and broadcasted in the first 4 elements of a matrix. */
-  vtkPlusDataSource* ecmJoints;
+  vtkPlusDataSource* usm1Joints;
+  vtkPlusDataSource* usm2Joints;
+  vtkPlusDataSource* usm3Joints;
+  vtkPlusDataSource* usm4Joints;
 
   /*************** ROBOT BASE TRANSFORMS ***************/
 
   /*! Transform from PSM1 Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* psm1Base;
+  //vtkPlusDataSource* psm1Base;
 
   /*! Transform from PSM2 Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* psm2Base;
+  //vtkPlusDataSource* psm2Base;
 
   /*! Transform from ECM Base frame to the da Vinci world frame. */
-  vtkPlusDataSource* ecmBase;
+  //vtkPlusDataSource* ecmBase;
 
   /*************** PSM1 LINK TRANSFORMS ***************/
 
   /*! Transform from Frame1 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame1;
+  //vtkPlusDataSource* psm1Frame1;
 
   /*! Transform from Frame2 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame2;
+  //vtkPlusDataSource* psm1Frame2;
 
   /*! Transform from Frame3 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame3;
+  //vtkPlusDataSource* psm1Frame3;
 
   /*! Transform from Frame4 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame4;
+  //vtkPlusDataSource* psm1Frame4;
 
   /*! Transform from Frame5 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame5;
+  //vtkPlusDataSource* psm1Frame5;
 
   /*! Transform from Frame6 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame6;
+  //vtkPlusDataSource* psm1Frame6;
 
   /*! Transform from Frame7 of PSM1 to PSM1 Base. */
-  vtkPlusDataSource* psm1Frame7;
+  //vtkPlusDataSource* psm1Frame7;
 
   /*************** PSM2 LINK TRANSFORMS ***************/
 
   /*! Transform from Frame1 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame1;
+  //vtkPlusDataSource* psm2Frame1;
 
   /*! Transform from Frame2 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame2;
+  //vtkPlusDataSource* psm2Frame2;
 
   /*! Transform from Frame3 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame3;
+  //vtkPlusDataSource* psm2Frame3;
 
   /*! Transform from Frame4 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame4;
+  //vtkPlusDataSource* psm2Frame4;
 
   /*! Transform from Frame5 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame5;
+  //vtkPlusDataSource* psm2Frame5;
 
   /*! Transform from Frame6 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame6;
+  //vtkPlusDataSource* psm2Frame6;
 
   /*! Transform from Frame7 of PSM2 to PSM2 Base. */
-  vtkPlusDataSource* psm2Frame7;
+  //vtkPlusDataSource* psm2Frame7;
 
   /*************** ECM LINK TRANSFORMS ***************/
 
   /*! Transform from Frame1 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame1;
+  //vtkPlusDataSource* ecmFrame1;
 
   /*! Transform from Frame2 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame2;
+  //vtkPlusDataSource* ecmFrame2;
 
   /*! Transform from Frame3 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame3;
+  //vtkPlusDataSource* ecmFrame3;
 
   /*! Transform from Frame4 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame4;
+  //vtkPlusDataSource* ecmFrame4;
 
   /*! Transform from Frame5 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame5;
+  //vtkPlusDataSource* ecmFrame5;
 
   /*! Transform from Frame6 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame6;
+  //vtkPlusDataSource* ecmFrame6;
 
   /*! Transform from Frame7 of ECM to ECM Base. */
-  vtkPlusDataSource* ecmFrame7;
+  //vtkPlusDataSource* ecmFrame7;
 };
 
 // Macro to publish an isiTransform to a given tool. 
