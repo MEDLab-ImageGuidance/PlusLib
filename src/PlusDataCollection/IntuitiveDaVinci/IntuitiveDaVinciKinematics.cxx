@@ -49,6 +49,9 @@ UsmTransforms::UsmTransforms()
 
   for (int iii = 0; iii < NUM_USM_DH_ROWS_ACTIVE; iii++)
     activeToWorld[iii] = vtkMatrix4x4::New();
+
+  for (int iii = 0; iii < NUM_USM_DH_ROWS_TOOL; iii++)
+    toolToWorld[iii] = vtkMatrix4x4::New();
 }
 
 UsmTransforms::~UsmTransforms()
@@ -61,6 +64,9 @@ UsmTransforms::~UsmTransforms()
 
   for (int iii = 0; iii < NUM_USM_DH_ROWS_ACTIVE; iii++)
     activeToWorld[iii]->Delete();
+
+  for (int iii = 0; iii < NUM_USM_DH_ROWS_TOOL; iii++)
+    toolToWorld[iii]->Delete();
 }
 
 void UsmTransforms::Copy(UsmTransforms* transformsOut)
@@ -73,6 +79,9 @@ void UsmTransforms::Copy(UsmTransforms* transformsOut)
 
   for (int iii = 0; iii < NUM_USM_DH_ROWS_ACTIVE; iii++)
     activeToWorld[iii]->DeepCopy(transformsOut->activeToWorld[iii]);
+
+  for (int iii = 0; iii < NUM_USM_DH_ROWS_TOOL; iii++)
+    toolToWorld[iii]->DeepCopy(transformsOut->toolToWorld[iii]);
 }
 
 UsmKinematicModel::UsmKinematicModel()
@@ -97,6 +106,10 @@ void UsmKinematicModel::SetActiveDhTable(UsmDhRow* dhTable)
   CopyDhTable(mActiveDhTable, dhTable, NUM_USM_DH_ROWS_ACTIVE);
 }
 
+void UsmKinematicModel::SetToolDhTable(UsmDhRow* dhTable)
+{
+  CopyDhTable(mToolDhTable, dhTable, NUM_USM_DH_ROWS_TOOL);
+}
 
 void UsmKinematicModel::SetSujToWorldTransform(vtkMatrix4x4* sujToWorldTransform)
 {
@@ -159,6 +172,22 @@ void UsmKinematicModel::ComputeKinematics()
 
     vtkMatrix4x4* transformBase = iii == 0 ? mTransforms.usmToWorld : mTransforms.activeToWorld[iii - 1];
     mActiveDhTable[iii].GetTransform(mTransforms.activeToWorld[iii], transformBase, jointValue);
+  }
+
+  // Set all of the tool joints to world transforms
+  for (int iii = 0; iii < NUM_USM_DH_ROWS_TOOL; iii++)
+  {
+    double jointValue;
+    if (mToolDhTable[iii].GetJointType() != DUMMY)
+    {
+      jointValue = mJointValues.activeJointValues[jointIndex];
+      jointIndex++;
+    }
+    else
+      jointValue = 0.0;
+
+    vtkMatrix4x4* transformBase = iii == 0 ? mTransforms.activeToWorld[NUM_USM_DH_ROWS_ACTIVE - 1] : mTransforms.toolToWorld[iii - 1];
+    mToolDhTable[iii].GetTransform(mTransforms.toolToWorld[iii], transformBase, jointValue);
   }
 }
 

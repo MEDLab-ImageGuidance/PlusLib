@@ -7,11 +7,13 @@
 
 #include "DaVinciXiCApi.h"
 
-
 using namespace DaVinciXi;
 
-const int NUM_USM_DH_ROWS_ACTIVE = 13;
+
 const int NUM_USM_DH_ROWS_SETUP = 6;
+const int NUM_USM_DH_ROWS_ACTIVE = 9;
+const int NUM_USM_DH_ROWS_TOOL = 4;
+const int NUM_USM_DH_COLS = 6;
 
 enum UsmJointType
 {
@@ -44,6 +46,7 @@ public:
   vtkMatrix4x4* setupToWorld[NUM_USM_DH_ROWS_SETUP];
   vtkMatrix4x4* usmToWorld;
   vtkMatrix4x4* activeToWorld[NUM_USM_DH_ROWS_ACTIVE];
+  vtkMatrix4x4* toolToWorld[NUM_USM_DH_ROWS_TOOL];
 };
 
 class UsmKinematicModel
@@ -55,6 +58,8 @@ public:
   // Setting usm model parameters
   void SetSetupDhTable(UsmDhRow* setupDhTable);
   void SetActiveDhTable(UsmDhRow* activeDhTable);
+  void SetToolDhTable(UsmDhRow* toolDhTable);
+
   void SetSujToWorldTransform(vtkMatrix4x4* sujToWorldTransform);
   void SetUsmToSujTransform(vtkMatrix4x4* usmToSujTransform);
 
@@ -62,13 +67,14 @@ public:
   void SetJointValues(UsmJointValues* jointValues);
   void ComputeKinematics();
   void GetTransforms(UsmTransforms* transformsOut);
-
+  
 protected:
   UsmTransforms mTransforms;
   UsmJointValues mJointValues;
 
   UsmDhRow mSetupDhTable[NUM_USM_DH_ROWS_SETUP];
   UsmDhRow mActiveDhTable[NUM_USM_DH_ROWS_ACTIVE];
+  UsmDhRow mToolDhTable[NUM_USM_DH_ROWS_TOOL];
 
   vtkMatrix4x4* mSujToWorld;
   vtkMatrix4x4* mUsmToSetup;

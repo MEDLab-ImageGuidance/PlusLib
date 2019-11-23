@@ -43,6 +43,8 @@ vtkStandardNewMacro(vtkPlusIntuitiveDaVinciTracker);
 vtkPlusIntuitiveDaVinciTracker::vtkPlusIntuitiveDaVinciTracker()
   : vtkPlusDevice()
   , api(new DaVinciXiCApi())
+  , usm1(new UsmKinematicModel()), usm2(new UsmKinematicModel())
+  , usm3(new UsmKinematicModel()), usm4(new UsmKinematicModel())
   , LastFrameNumber(0)
   , usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL)
   //, DebugSineWaveMode(false)
@@ -66,6 +68,18 @@ vtkPlusIntuitiveDaVinciTracker::~vtkPlusIntuitiveDaVinciTracker()
 
   delete this->api;
   this->api = nullptr;
+
+  delete this->usm1;
+  this->usm1 = nullptr;
+
+  delete this->usm2;
+  this->usm2 = nullptr;
+
+  delete this->usm3;
+  this->usm3 = nullptr;
+
+  delete this->usm4;
+  this->usm4 = nullptr;
 
   LOG_DEBUG("vktPlusIntuitiveDaVinciTracker destroyed.");
 }
@@ -180,8 +194,10 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
 
   DaVinciXiJointValues jointValues;
 
-  LOG_DEBUG("InternalUpdate called.");
+  //LOG_DEBUG("InternalUpdate called.");
   this->api->getJointValues(jointValues);
+
+  LOG_DEBUG(jointValues.AsString());
 
   this->usm1->SetJointValues(&(jointValues.usm1));
   this->usm2->SetJointValues(&(jointValues.usm2));
@@ -202,24 +218,24 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   //UsmTransforms usm4Transforms;
   //this->usm1->GetTransforms(&usm4Transforms);
 
-  //// We will need these to copy data values 
-  //vtkSmartPointer<vtkMatrix4x4> tmpVtkMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  // We will need these to copy data values 
+  vtkSmartPointer<vtkMatrix4x4> tmpVtkMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
-  //UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm1));
-  //unsigned long frameNumber = usm1Joints->GetFrameNumber() + 1;
-  //ToolTimeStampedUpdate(usm1Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+  UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm1));
+  unsigned long frameNumber = usm1Joints->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
-  //UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm2));
-  //frameNumber = usm2Joints->GetFrameNumber() + 1;
-  //ToolTimeStampedUpdate(usm2Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+  UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm2));
+  frameNumber = usm2Joints->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
-  //UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm3));
-  //frameNumber = usm3Joints->GetFrameNumber() + 1;
-  //ToolTimeStampedUpdate(usm3Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+  UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm3));
+  frameNumber = usm3Joints->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm3Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
-  //UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm4));
-  //frameNumber = usm4Joints->GetFrameNumber() + 1;
-  //ToolTimeStampedUpdate(usm4Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
+  UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm4));
+  frameNumber = usm4Joints->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm4Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
   //// Update all of the manipulator base frames
   //PUBLISH_ISI_TRANSFORM(psm1Base, this->DaVinci->GetPsm1BaseToWorld());
@@ -286,7 +302,106 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalStopRecording()
 //----------------------------------------------------------------------------
 PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalDisconnect()
 {
-  LOG_DEBUG("Disconnected from device.")
+  LOG_DEBUG("Disconnected from device.");
+  return PLUS_SUCCESS;
+}
+
+void VectorToDhTable(UsmDhRow* dhTable, double* vector, int numRows)
+{
+  for (int iii = 0; iii < numRows; iii++)
+  {
+    double* row = vector + iii*NUM_USM_DH_COLS;
+    dhTable[iii].SetRow(static_cast<UsmJointType>(static_cast<int>(row[0])), row[1], row[2], row[3], row[4], row[5]);
+  }
+}
+
+PlusStatus SetUsmModelParameters(UsmKinematicModel* usm, const std::string& usmNumber, const std::string& toolType, const std::string& calibrationFilename)
+{
+  LOG_DEBUG("Building parameters for " << usmNumber << " with tool: " << toolType << " and calibration file " << calibrationFilename);
+
+  vtkXMLDataElement* calibrationElement = vtkPlusConfig::GetInstance()->CreateDeviceSetConfigurationFromFile(calibrationFilename);
+
+  if (calibrationElement == nullptr)
+  {
+    return PLUS_FAIL;
+  }
+
+  XML_FIND_NESTED_ELEMENT_REQUIRED(usmElement, calibrationElement, usmNumber.c_str());
+  XML_FIND_NESTED_ELEMENT_REQUIRED(instrumentDhTables, calibrationElement, "InstrumentDhTables");
+
+  XML_FIND_NESTED_ELEMENT_REQUIRED(sujToWorldTransformElement, usmElement, "SujToWorldTransform");
+  XML_FIND_NESTED_ELEMENT_REQUIRED(usmToSujTransformElement, usmElement, "UsmToSujTransform");
+  XML_FIND_NESTED_ELEMENT_REQUIRED(setupDhTableElement, usmElement, "SetupDhTable");
+  XML_FIND_NESTED_ELEMENT_REQUIRED(activeDhTableElement, usmElement, "ActiveDhTable");
+  XML_FIND_NESTED_ELEMENT_REQUIRED(toolDhTableElement, instrumentDhTables, toolType.c_str());
+
+  vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  double vectorBuffer[128] = { 0 };
+
+  // Set the SujToWorldTransform
+  if (sujToWorldTransformElement->GetVectorAttribute("Matrix", 4*4, vectorBuffer))
+  {
+    matrix->DeepCopy(vectorBuffer);
+    usm->SetSujToWorldTransform(matrix);
+  }
+  else
+  {
+    LOG_ERROR("Unable to find 'Matrix' attribute of SujToWorldTransform in the calibration file.");
+    return PLUS_FAIL;
+  }
+
+  // Set the UsmToSujTransform
+  if (usmToSujTransformElement->GetVectorAttribute("Matrix", 4*4, vectorBuffer))
+  {
+    matrix->DeepCopy(vectorBuffer);
+    usm->SetUsmToSujTransform(matrix);
+  }
+  else
+  {
+    LOG_ERROR("Unable to find 'Matrix' attribute of UsmToSujTransform in the calibration file.");
+    return PLUS_FAIL;
+  }
+
+  // Set the SetupDhTable
+  if (setupDhTableElement->GetVectorAttribute("Matrix", NUM_USM_DH_ROWS_SETUP*NUM_USM_DH_COLS, vectorBuffer))
+  {
+    UsmDhRow setupDhTable[NUM_USM_DH_ROWS_SETUP];
+    VectorToDhTable(setupDhTable, vectorBuffer, NUM_USM_DH_ROWS_SETUP);
+    usm->SetSetupDhTable(setupDhTable);
+  }
+  else
+  {
+    LOG_ERROR("Unable to find 'Matrix' attribute of SetupDhTable in the calibration file.");
+    return PLUS_FAIL;
+  }
+
+  // Set the ActiveDhTable (without the tool portion)
+  if (activeDhTableElement->GetVectorAttribute("Matrix", NUM_USM_DH_ROWS_ACTIVE*NUM_USM_DH_COLS, vectorBuffer))
+  {
+    UsmDhRow activeDhTable[NUM_USM_DH_ROWS_ACTIVE];
+    VectorToDhTable(activeDhTable, vectorBuffer, NUM_USM_DH_ROWS_ACTIVE);
+    usm->SetActiveDhTable(activeDhTable);
+  }
+  else
+  {
+    LOG_ERROR("Unable to find 'Matrix' attribute of ActiveDhTable in the calibration file.");
+    return PLUS_FAIL;
+  }
+
+  // Set the ToolDhTable
+  if (toolDhTableElement->GetVectorAttribute("Matrix", NUM_USM_DH_ROWS_TOOL*NUM_USM_DH_COLS, vectorBuffer))
+  {
+    UsmDhRow toolDhTable[NUM_USM_DH_ROWS_TOOL];
+    VectorToDhTable(toolDhTable, vectorBuffer, NUM_USM_DH_ROWS_TOOL);
+    usm->SetToolDhTable(toolDhTable);
+  }
+  else
+  {
+    LOG_ERROR("Unable to find 'Matrix' attribute InstrumentDhTables for the tool " << toolType <<  " in the calibration file.");
+    return PLUS_FAIL;
+  }
+
+  calibrationElement->Delete();
   return PLUS_SUCCESS;
 }
 
@@ -297,50 +412,76 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::ReadConfiguration(vtkXMLDataElement* 
 
   XML_FIND_DEVICE_ELEMENT_REQUIRED_FOR_READING(deviceConfig, rootConfigElement);
 
-  //XML_READ_SCALAR_ATTRIBUTE_WARNING(int, AcquisitionRate, deviceConfig); 
-  //XML_READ_BOOL_ATTRIBUTE_OPTIONAL(DebugSineWaveMode, deviceConfig);
+  XML_READ_SCALAR_ATTRIBUTE_WARNING(int, AcquisitionRate, deviceConfig); 
 
-  //std::string psm1DhTable;
-  //std::string psm2DhTable;
-  //std::string ecmDhTable;
+  // Read the filename for the calibration file that contains all of our calibrated Usm parameters
+  std::string calibrationFilename;
+  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(CalibrationFilename, calibrationFilename, deviceConfig);
 
-  //XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Psm1DhTable, psm1DhTable, deviceConfig);
-  //XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Psm2DhTable, psm2DhTable, deviceConfig);
-  //XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(EcmDhTable, ecmDhTable, deviceConfig);
+  // In order to build DH tables for the USM, we have to know which tool it is holding
+  std::string usmToolType;
+  
+  // Build parameters for Usm1
+  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm1ToolType, usmToolType, deviceConfig);
 
-  //PlusStatus status = SetDhTablesFromStrings(psm1DhTable, psm2DhTable, ecmDhTable);
+  if (SetUsmModelParameters(this->usm1, "Usm1", usmToolType, calibrationFilename) != PLUS_SUCCESS)
+  {
+    LOG_ERROR("Could not set model parameters for Usm1.");
+    return PLUS_FAIL;
+  }
 
-  //if (status != PLUS_SUCCESS)
-  //{
-  //  LOG_ERROR("Check the formatting of the DH tables.");
-  //  return status;
-  //}
-	
+  // Build parameters for Usm2
+  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm2ToolType, usmToolType, deviceConfig);
+
+  if (SetUsmModelParameters(this->usm2, "Usm2", usmToolType, calibrationFilename) != PLUS_SUCCESS)
+  {
+    LOG_ERROR("Could not set model parameters for Usm2.");
+    return PLUS_FAIL;
+  }
+
+  // Build parameters for Usm3
+  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm3ToolType, usmToolType, deviceConfig);
+
+  if (SetUsmModelParameters(this->usm3, "Usm3", usmToolType, calibrationFilename) != PLUS_SUCCESS)
+  {
+    LOG_ERROR("Could not set model parameters for Usm3.");
+    return PLUS_FAIL;
+  }
+
+  // Build parameters for Usm4
+  XML_READ_STRING_ATTRIBUTE_NONMEMBER_REQUIRED(Usm4ToolType, usmToolType, deviceConfig);
+
+  if (SetUsmModelParameters(this->usm4, "Usm4", usmToolType, calibrationFilename) != PLUS_SUCCESS)
+  {
+    LOG_ERROR("Could not set model parameters for Usm4.");
+    return PLUS_FAIL;
+  }
+
   return PLUS_SUCCESS;
 }
 
-//----------------------------------------------------------------------------
-static bool BothAreSpaces(char lhs, char rhs)
-{
-	return (lhs == rhs) && (lhs == ' ');
-}
-
-//----------------------------------------------------------------------------
-static void ProcessDhString(std::string& str)
-{
-	std::vector<std::string> strTokens;
-
-	// Remove all the new lines from the string
-	str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
-	// Remove all tabs 
-	str.erase(std::remove(str.begin(), str.end(), '\t'), str.end());
-	// Trim the beginning and end
-	str = igsioCommon::Trim(str);
-
-	// Remove all double/triple spaces
-	std::string::iterator new_end = std::unique(str.begin(), str.end(), BothAreSpaces);
-	str.erase(new_end, str.end());
-}
+////----------------------------------------------------------------------------
+//static bool BothAreSpaces(char lhs, char rhs)
+//{
+//	return (lhs == rhs) && (lhs == ' ');
+//}
+//
+////----------------------------------------------------------------------------
+//static void ProcessDhString(std::string& str)
+//{
+//	std::vector<std::string> strTokens;
+//
+//	// Remove all the new lines from the string
+//	str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
+//	// Remove all tabs 
+//	str.erase(std::remove(str.begin(), str.end(), '\t'), str.end());
+//	// Trim the beginning and end
+//	str = igsioCommon::Trim(str);
+//
+//	// Remove all double/triple spaces
+//	std::string::iterator new_end = std::unique(str.begin(), str.end(), BothAreSpaces);
+//	str.erase(new_end, str.end());
+//}
 
 //static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector, ISI_DH_ROW* destIsiDhTable)
 //{
