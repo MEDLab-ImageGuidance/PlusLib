@@ -15,7 +15,6 @@ See License.txt for details.
 #include <vtkTransform.h>
 
 //----------------------------------------------------------------------------
-
 void UsmJointValuesToVtkMatrix(vtkMatrix4x4* matrixOut, UsmJointValues* jointValuesIn)
 {
   matrixOut->Zero();
@@ -36,7 +35,6 @@ void UsmJointValuesToVtkMatrix(vtkMatrix4x4* matrixOut, UsmJointValues* jointVal
 }
 
 //----------------------------------------------------------------------------
-
 vtkStandardNewMacro(vtkPlusIntuitiveDaVinciTracker);
 
 //----------------------------------------------------------------------------
@@ -47,11 +45,10 @@ vtkPlusIntuitiveDaVinciTracker::vtkPlusIntuitiveDaVinciTracker()
   , usm3(new UsmKinematicModel()), usm4(new UsmKinematicModel())
   , LastFrameNumber(0)
   , usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL)
-  //, DebugSineWaveMode(false)
-  //, psm1Base(NULL),   psm2Base(NULL),   ecmBase(NULL)
-  //, psm1Frame1(NULL), psm1Frame2(NULL), psm1Frame3(NULL), psm1Frame4(NULL), psm1Frame5(NULL), psm1Frame6(NULL), psm1Frame7(NULL)
-  //, psm2Frame1(NULL), psm2Frame2(NULL), psm2Frame3(NULL), psm2Frame4(NULL), psm2Frame5(NULL), psm2Frame6(NULL), psm2Frame7(NULL)
-  //, ecmFrame1(NULL),  ecmFrame2(NULL),  ecmFrame3(NULL),  ecmFrame4(NULL),  ecmFrame5(NULL),  ecmFrame6(NULL),  ecmFrame7(NULL)
+  , usm1Shaft(NULL), usm1Wrist(NULL), usm1EndEffectorJaw(NULL), usm1EndEffectorTip(NULL)
+  , usm2Shaft(NULL), usm2Wrist(NULL), usm2EndEffectorJaw(NULL), usm2EndEffectorTip(NULL)
+  , usm3Shaft(NULL), usm3Wrist(NULL), usm3EndEffectorJaw(NULL), usm3EndEffectorTip(NULL)
+  , usm4Shaft(NULL), usm4Wrist(NULL), usm4EndEffectorJaw(NULL), usm4EndEffectorTip(NULL)
 {
   this->StartThreadForInternalUpdates = true; // Want a dedicated thread
   this->RequirePortNameInDeviceSetConfiguration = true;
@@ -114,33 +111,25 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalConnect()
   GetToolByPortName("usm3Joints", this->usm3Joints);
   GetToolByPortName("usm4Joints", this->usm4Joints);
 
-  //GetToolByPortName("psm1Base", this->psm1Base);
-  //GetToolByPortName("psm2Base", this->psm2Base);
-  //GetToolByPortName("ecmBase", this->ecmBase);
+  GetToolByPortName("usm1Shaft", this->usm1Shaft);
+  GetToolByPortName("usm1Wrist", this->usm1Wrist);
+  GetToolByPortName("usm1EndEffectorJaw", this->usm1EndEffectorJaw);
+  GetToolByPortName("usm1EndEffectorTip", this->usm1EndEffectorTip);
 
-  //GetToolByPortName("psm1Frame1", this->psm1Frame1);
-  //GetToolByPortName("psm1Frame2", this->psm1Frame2);
-  //GetToolByPortName("psm1Frame3", this->psm1Frame3);
-  //GetToolByPortName("psm1Frame4", this->psm1Frame4);
-  //GetToolByPortName("psm1Frame5", this->psm1Frame5);
-  //GetToolByPortName("psm1Frame6", this->psm1Frame6);
-  //GetToolByPortName("psm1Frame7", this->psm1Frame7);
+  GetToolByPortName("usm2Shaft", this->usm2Shaft);
+  GetToolByPortName("usm2Wrist", this->usm2Wrist);
+  GetToolByPortName("usm2EndEffectorJaw", this->usm2EndEffectorJaw);
+  GetToolByPortName("usm2EndEffectorTip", this->usm2EndEffectorTip);
 
-  //GetToolByPortName("psm2Frame1", this->psm2Frame1);
-  //GetToolByPortName("psm2Frame2", this->psm2Frame2);
-  //GetToolByPortName("psm2Frame3", this->psm2Frame3);
-  //GetToolByPortName("psm2Frame4", this->psm2Frame4);
-  //GetToolByPortName("psm2Frame5", this->psm2Frame5);
-  //GetToolByPortName("psm2Frame6", this->psm2Frame6);
-  //GetToolByPortName("psm2Frame7", this->psm2Frame7);
+  GetToolByPortName("usm3Shaft", this->usm3Shaft);
+  GetToolByPortName("usm3Wrist", this->usm3Wrist);
+  GetToolByPortName("usm3EndEffectorJaw", this->usm3EndEffectorJaw);
+  GetToolByPortName("usm3EndEffectorTip", this->usm3EndEffectorTip);
 
-  //GetToolByPortName("ecmFrame1", this->ecmFrame1);
-  //GetToolByPortName("ecmFrame2", this->ecmFrame2);
-  //GetToolByPortName("ecmFrame3", this->ecmFrame3);
-  //GetToolByPortName("ecmFrame4", this->ecmFrame4);
-  //GetToolByPortName("ecmFrame5", this->ecmFrame5);
-  //GetToolByPortName("ecmFrame6", this->ecmFrame6);
-  //GetToolByPortName("ecmFrame7", this->ecmFrame7);
+  GetToolByPortName("usm4Shaft", this->usm4Shaft);
+  GetToolByPortName("usm4Wrist", this->usm4Wrist);
+  GetToolByPortName("usm4EndEffectorJaw", this->usm4EndEffectorJaw);
+  GetToolByPortName("usm4EndEffectorTip", this->usm4EndEffectorTip);
 
   LOG_DEBUG("Connection successful.");
 
@@ -197,30 +186,31 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   //LOG_DEBUG("InternalUpdate called.");
   this->api->getJointValues(jointValues);
 
-  LOG_DEBUG(jointValues.AsString());
+  //LOG_DEBUG(jointValues.AsString());
 
   this->usm1->SetJointValues(&(jointValues.usm1));
   this->usm2->SetJointValues(&(jointValues.usm2));
   this->usm3->SetJointValues(&(jointValues.usm3));
   this->usm4->SetJointValues(&(jointValues.usm4));
 
-  //this->usm1->ComputeKinematics();
-  //this->usm2->ComputeKinematics();
-  //this->usm3->ComputeKinematics();
-  //this->usm4->ComputeKinematics();
+  this->usm1->ComputeKinematics();
+  this->usm2->ComputeKinematics();
+  this->usm3->ComputeKinematics();
+  this->usm4->ComputeKinematics();
 
-  //UsmTransforms usm1Transforms;
-  //this->usm1->GetTransforms(&usm1Transforms);
-  //UsmTransforms usm2Transforms;
-  //this->usm1->GetTransforms(&usm2Transforms);
-  //UsmTransforms usm3Transforms;
-  //this->usm1->GetTransforms(&usm3Transforms);
-  //UsmTransforms usm4Transforms;
-  //this->usm1->GetTransforms(&usm4Transforms);
+  UsmTransforms usm1Transforms;
+  this->usm1->GetTransforms(&usm1Transforms);
+  UsmTransforms usm2Transforms;
+  this->usm2->GetTransforms(&usm2Transforms);
+  UsmTransforms usm3Transforms;
+  this->usm3->GetTransforms(&usm3Transforms);
+  UsmTransforms usm4Transforms;
+  this->usm4->GetTransforms(&usm4Transforms);
 
   // We will need these to copy data values 
   vtkSmartPointer<vtkMatrix4x4> tmpVtkMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
+  // Send out all of the joint values
   UsmJointValuesToVtkMatrix(tmpVtkMatrix, &(jointValues.usm1));
   unsigned long frameNumber = usm1Joints->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm1Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
@@ -237,43 +227,62 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   frameNumber = usm4Joints->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm4Joints->GetId(), tmpVtkMatrix, TOOL_OK, frameNumber, toolTimestamp);
 
-  //// Update all of the manipulator base frames
-  //PUBLISH_ISI_TRANSFORM(psm1Base, this->DaVinci->GetPsm1BaseToWorld());
-  //PUBLISH_ISI_TRANSFORM(psm2Base, this->DaVinci->GetPsm2BaseToWorld());
-  //PUBLISH_ISI_TRANSFORM(ecmBase, this->DaVinci->GetEcmBaseToWorld());
+  const int shaftIndex = 0;
+  const int wristIndex = 1;
+  const int endEffectorJawIndex = 2;
+  const int endEffectorTipIndex = 3;
 
-  //// Update all of the psm1Frames
-  //ISI_TRANSFORM* psm1Transforms = this->DaVinci->GetPsm1()->GetTransforms();
+  // Send out link transforms for Usm1
+  frameNumber = usm1Shaft->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1Shaft->GetId(), usm1Transforms.toolToWorld[shaftIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  //PUBLISH_ISI_TRANSFORM(psm1Frame1, psm1Transforms + 0);
-  //PUBLISH_ISI_TRANSFORM(psm1Frame2, psm1Transforms + 1);
-  //PUBLISH_ISI_TRANSFORM(psm1Frame3, psm1Transforms + 2);
-  //PUBLISH_ISI_TRANSFORM(psm1Frame4, psm1Transforms + 3);
-  //PUBLISH_ISI_TRANSFORM(psm1Frame5, psm1Transforms + 4);
-  //PUBLISH_ISI_TRANSFORM(psm1Frame6, psm1Transforms + 5);
-  //PUBLISH_ISI_TRANSFORM(psm1Frame7, psm1Transforms + 6);
+  frameNumber = usm1Wrist->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1Wrist->GetId(), usm1Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  //// Update all of the psm2Frames
-  //ISI_TRANSFORM* psm2Transforms = this->DaVinci->GetPsm2()->GetTransforms();
+  frameNumber = usm1EndEffectorJaw->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1EndEffectorJaw->GetId(), usm1Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  //PUBLISH_ISI_TRANSFORM(psm2Frame1, psm2Transforms + 0);
-  //PUBLISH_ISI_TRANSFORM(psm2Frame2, psm2Transforms + 1);
-  //PUBLISH_ISI_TRANSFORM(psm2Frame3, psm2Transforms + 2);
-  //PUBLISH_ISI_TRANSFORM(psm2Frame4, psm2Transforms + 3);
-  //PUBLISH_ISI_TRANSFORM(psm2Frame5, psm2Transforms + 4);
-  //PUBLISH_ISI_TRANSFORM(psm2Frame6, psm2Transforms + 5);
-  //PUBLISH_ISI_TRANSFORM(psm2Frame7, psm2Transforms + 6);
+  frameNumber = usm1EndEffectorTip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1EndEffectorTip->GetId(), usm1Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  //// Update all of the ecmFrames
-  //ISI_TRANSFORM* ecmTransforms = this->DaVinci->GetEcm()->GetTransforms();
+  // Send out link transforms for Usm2
+  frameNumber = usm2Shaft->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2Shaft->GetId(), usm2Transforms.toolToWorld[shaftIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  //PUBLISH_ISI_TRANSFORM(ecmFrame1, ecmTransforms + 0);
-  //PUBLISH_ISI_TRANSFORM(ecmFrame2, ecmTransforms + 1);
-  //PUBLISH_ISI_TRANSFORM(ecmFrame3, ecmTransforms + 2);
-  //PUBLISH_ISI_TRANSFORM(ecmFrame4, ecmTransforms + 3);
-  //PUBLISH_ISI_TRANSFORM(ecmFrame5, ecmTransforms + 4);
-  //PUBLISH_ISI_TRANSFORM(ecmFrame6, ecmTransforms + 5);
-  //PUBLISH_ISI_TRANSFORM(ecmFrame7, ecmTransforms + 6);
+  frameNumber = usm2Wrist->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2Wrist->GetId(), usm2Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm2EndEffectorJaw->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2EndEffectorJaw->GetId(), usm2Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm2EndEffectorTip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2EndEffectorTip->GetId(), usm2Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  // Send out link transforms for Usm3
+  frameNumber = usm3Shaft->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm3Shaft->GetId(), usm3Transforms.toolToWorld[shaftIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm3Wrist->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm3Wrist->GetId(), usm3Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm3EndEffectorJaw->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm3EndEffectorJaw->GetId(), usm3Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm3EndEffectorTip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm3EndEffectorTip->GetId(), usm3Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  // Send out link transforms for Usm4
+  frameNumber = usm4Shaft->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm4Shaft->GetId(), usm4Transforms.toolToWorld[shaftIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm4Wrist->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm4Wrist->GetId(), usm4Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm4EndEffectorJaw->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm4EndEffectorJaw->GetId(), usm4Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
+
+  frameNumber = usm4EndEffectorTip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm4EndEffectorTip->GetId(), usm4Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
 
   return PLUS_SUCCESS;
 }
@@ -306,6 +315,7 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalDisconnect()
   return PLUS_SUCCESS;
 }
 
+//----------------------------------------------------------------------------
 void VectorToDhTable(UsmDhRow* dhTable, double* vector, int numRows)
 {
   for (int iii = 0; iii < numRows; iii++)
@@ -315,6 +325,7 @@ void VectorToDhTable(UsmDhRow* dhTable, double* vector, int numRows)
   }
 }
 
+//----------------------------------------------------------------------------
 PlusStatus SetUsmModelParameters(UsmKinematicModel* usm, const std::string& usmNumber, const std::string& toolType, const std::string& calibrationFilename)
 {
   LOG_DEBUG("Building parameters for " << usmNumber << " with tool: " << toolType << " and calibration file " << calibrationFilename);
@@ -460,92 +471,6 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::ReadConfiguration(vtkXMLDataElement* 
   return PLUS_SUCCESS;
 }
 
-////----------------------------------------------------------------------------
-//static bool BothAreSpaces(char lhs, char rhs)
-//{
-//	return (lhs == rhs) && (lhs == ' ');
-//}
-//
-////----------------------------------------------------------------------------
-//static void ProcessDhString(std::string& str)
-//{
-//	std::vector<std::string> strTokens;
-//
-//	// Remove all the new lines from the string
-//	str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
-//	// Remove all tabs 
-//	str.erase(std::remove(str.begin(), str.end(), '\t'), str.end());
-//	// Trim the beginning and end
-//	str = igsioCommon::Trim(str);
-//
-//	// Remove all double/triple spaces
-//	std::string::iterator new_end = std::unique(str.begin(), str.end(), BothAreSpaces);
-//	str.erase(new_end, str.end());
-//}
-
-//static void ConvertTokenVectorToDhTable(std::vector<std::string>& srcTokenVector, ISI_DH_ROW* destIsiDhTable)
-//{
-//  for (int iii = 0; iii < 7; iii++)
-//  {
-//    try
-//    {
-//      destIsiDhTable[iii].type = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 0]);
-//      destIsiDhTable[iii].l = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 1]);
-//      destIsiDhTable[iii].sina = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 2]);
-//      destIsiDhTable[iii].cosa = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 3]);
-//      destIsiDhTable[iii].d = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 4]);
-//      destIsiDhTable[iii].sinq = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 5]);
-//      destIsiDhTable[iii].cosq = (ISI_FLOAT)std::stof(srcTokenVector[7 * iii + 6]);
-//    }
-//    catch (...)
-//    {
-//      LOG_ERROR("Check input DH table input in config file.");
-//    }
-//  }
-//}
-
-//----------------------------------------------------------------------------
-//PlusStatus vtkPlusIntuitiveDaVinciTracker::SetDhTablesFromStrings(std::string psm1DhTable, std::string psm2DhTable, std::string ecmDhTable)
-//{
-//  std::vector<std::string> psm1TokenVector, psm2TokenVector, ecmTokenVector;
-// 
-//  const int numDhRows = 7; const int numDhCols = 7;
-//  int numElem = numDhRows*numDhCols;
-//
-//  ProcessDhString(psm1DhTable);
-//  ProcessDhString(psm2DhTable);
-//  ProcessDhString(ecmDhTable);
-//
-//  psm1TokenVector = igsioCommon::SplitStringIntoTokens(psm1DhTable, ' ');
-//  psm2TokenVector = igsioCommon::SplitStringIntoTokens(psm2DhTable, ' ');
-//  ecmTokenVector = igsioCommon::SplitStringIntoTokens(ecmDhTable, ' ');
-//
-//  if((psm1TokenVector.size() != numElem) || 
-//	   (psm2TokenVector.size() != numElem) ||
-//	   (ecmTokenVector.size() != numElem))
-//  {
-//	  LOG_ERROR("Invalid formatting of DH table string. Must have " << numElem << "elements.");
-//	  return PLUS_FAIL;
-//  }
-//
-//  ISI_DH_ROW isiPsm1DhTable[numDhRows];
-//  ISI_DH_ROW isiPsm2DhTable[numDhRows];
-//  ISI_DH_ROW isiEcmDhTable[numDhRows];
-//
-//  ConvertTokenVectorToDhTable(psm1TokenVector, isiPsm1DhTable);
-//  ConvertTokenVectorToDhTable(psm2TokenVector, isiPsm2DhTable);
-//  ConvertTokenVectorToDhTable(ecmTokenVector, isiEcmDhTable);
-//
-//  this->DaVinci->GetPsm1()->SetDhTable(isiPsm1DhTable);
-//  LOG_DEBUG("PSM1 DH Table set to: " << this->DaVinci->GetPsm1()->GetDhTableAsString());
-//  this->DaVinci->GetPsm2()->SetDhTable(isiPsm2DhTable);
-//  LOG_DEBUG("PSM2 DH Table set to: " << this->DaVinci->GetPsm2()->GetDhTableAsString());
-//  this->DaVinci->GetEcm()->SetDhTable(isiEcmDhTable);
-//  LOG_DEBUG("ECM DH Table set to: " << this->DaVinci->GetEcm()->GetDhTableAsString());
-//
-//  return PLUS_SUCCESS;
-//}
-
 //----------------------------------------------------------------------------
 PlusStatus vtkPlusIntuitiveDaVinciTracker::WriteConfiguration(vtkXMLDataElement* rootConfigElement)
 {
@@ -554,33 +479,3 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::WriteConfiguration(vtkXMLDataElement*
 
   return PLUS_SUCCESS;
 }
-
-//----------------------------------------------------------------------------
-//IntuitiveDaVinci* vtkPlusIntuitiveDaVinciTracker::GetDaVinci() const
-//{
-//  return this->DaVinci;
-//}
-
-//----------------------------------------------------------------------------
-//void vtkPlusIntuitiveDaVinciTracker::ConvertIsiTransformToVtkMatrix(ISI_TRANSFORM* srcIsiMatrix, vtkMatrix4x4& destVtkMatrix)
-//{
-//  destVtkMatrix.Identity();
-//
-//  // Let's VERY EXPLCITLY copy over the values.
-//  destVtkMatrix.SetElement(0, 0, srcIsiMatrix->rot.row0.x);
-//  destVtkMatrix.SetElement(0, 1, srcIsiMatrix->rot.row0.y);
-//  destVtkMatrix.SetElement(0, 2, srcIsiMatrix->rot.row0.z);
-//  destVtkMatrix.SetElement(0, 3, srcIsiMatrix->pos.x);
-//
-//  destVtkMatrix.SetElement(1, 0, srcIsiMatrix->rot.row1.x);
-//  destVtkMatrix.SetElement(1, 1, srcIsiMatrix->rot.row1.y);
-//  destVtkMatrix.SetElement(1, 2, srcIsiMatrix->rot.row1.z);
-//  destVtkMatrix.SetElement(1, 3, srcIsiMatrix->pos.y);
-//
-//  destVtkMatrix.SetElement(2, 0, srcIsiMatrix->rot.row2.x);
-//  destVtkMatrix.SetElement(2, 1, srcIsiMatrix->rot.row2.y);
-//  destVtkMatrix.SetElement(2, 2, srcIsiMatrix->rot.row2.z);
-//  destVtkMatrix.SetElement(2, 3, srcIsiMatrix->pos.z);
-//
-//  return;
-//}

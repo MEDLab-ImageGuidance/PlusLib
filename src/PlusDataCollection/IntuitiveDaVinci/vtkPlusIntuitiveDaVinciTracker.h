@@ -90,85 +90,29 @@ private:
   vtkPlusDataSource* usm3Joints;
   vtkPlusDataSource* usm4Joints;
 
-  /*************** ROBOT BASE TRANSFORMS ***************/
+  /*************** USM1 LINK TRANSFORMS ***************/
+  vtkPlusDataSource* usm1Shaft;
+  vtkPlusDataSource* usm1Wrist;
+  vtkPlusDataSource* usm1EndEffectorJaw;
+  vtkPlusDataSource* usm1EndEffectorTip;
 
-  /*! Transform from PSM1 Base frame to the da Vinci world frame. */
-  //vtkPlusDataSource* psm1Base;
+  /*************** USM2 LINK TRANSFORMS ***************/
+  vtkPlusDataSource* usm2Shaft;
+  vtkPlusDataSource* usm2Wrist;
+  vtkPlusDataSource* usm2EndEffectorJaw;
+  vtkPlusDataSource* usm2EndEffectorTip;
 
-  /*! Transform from PSM2 Base frame to the da Vinci world frame. */
-  //vtkPlusDataSource* psm2Base;
+  /*************** USM3 LINK TRANSFORMS ***************/
+  vtkPlusDataSource* usm3Shaft;
+  vtkPlusDataSource* usm3Wrist;
+  vtkPlusDataSource* usm3EndEffectorJaw;
+  vtkPlusDataSource* usm3EndEffectorTip;
 
-  /*! Transform from ECM Base frame to the da Vinci world frame. */
-  //vtkPlusDataSource* ecmBase;
-
-  /*************** PSM1 LINK TRANSFORMS ***************/
-
-  /*! Transform from Frame1 of PSM1 to PSM1 Base. */
-  //vtkPlusDataSource* psm1Frame1;
-
-  /*! Transform from Frame2 of PSM1 to PSM1 Base. */
-  //vtkPlusDataSource* psm1Frame2;
-
-  /*! Transform from Frame3 of PSM1 to PSM1 Base. */
-  //vtkPlusDataSource* psm1Frame3;
-
-  /*! Transform from Frame4 of PSM1 to PSM1 Base. */
-  //vtkPlusDataSource* psm1Frame4;
-
-  /*! Transform from Frame5 of PSM1 to PSM1 Base. */
-  //vtkPlusDataSource* psm1Frame5;
-
-  /*! Transform from Frame6 of PSM1 to PSM1 Base. */
-  //vtkPlusDataSource* psm1Frame6;
-
-  /*! Transform from Frame7 of PSM1 to PSM1 Base. */
-  //vtkPlusDataSource* psm1Frame7;
-
-  /*************** PSM2 LINK TRANSFORMS ***************/
-
-  /*! Transform from Frame1 of PSM2 to PSM2 Base. */
-  //vtkPlusDataSource* psm2Frame1;
-
-  /*! Transform from Frame2 of PSM2 to PSM2 Base. */
-  //vtkPlusDataSource* psm2Frame2;
-
-  /*! Transform from Frame3 of PSM2 to PSM2 Base. */
-  //vtkPlusDataSource* psm2Frame3;
-
-  /*! Transform from Frame4 of PSM2 to PSM2 Base. */
-  //vtkPlusDataSource* psm2Frame4;
-
-  /*! Transform from Frame5 of PSM2 to PSM2 Base. */
-  //vtkPlusDataSource* psm2Frame5;
-
-  /*! Transform from Frame6 of PSM2 to PSM2 Base. */
-  //vtkPlusDataSource* psm2Frame6;
-
-  /*! Transform from Frame7 of PSM2 to PSM2 Base. */
-  //vtkPlusDataSource* psm2Frame7;
-
-  /*************** ECM LINK TRANSFORMS ***************/
-
-  /*! Transform from Frame1 of ECM to ECM Base. */
-  //vtkPlusDataSource* ecmFrame1;
-
-  /*! Transform from Frame2 of ECM to ECM Base. */
-  //vtkPlusDataSource* ecmFrame2;
-
-  /*! Transform from Frame3 of ECM to ECM Base. */
-  //vtkPlusDataSource* ecmFrame3;
-
-  /*! Transform from Frame4 of ECM to ECM Base. */
-  //vtkPlusDataSource* ecmFrame4;
-
-  /*! Transform from Frame5 of ECM to ECM Base. */
-  //vtkPlusDataSource* ecmFrame5;
-
-  /*! Transform from Frame6 of ECM to ECM Base. */
-  //vtkPlusDataSource* ecmFrame6;
-
-  /*! Transform from Frame7 of ECM to ECM Base. */
-  //vtkPlusDataSource* ecmFrame7;
+  /*************** USM4 LINK TRANSFORMS ***************/
+  vtkPlusDataSource* usm4Shaft;
+  vtkPlusDataSource* usm4Wrist;
+  vtkPlusDataSource* usm4EndEffectorJaw;
+  vtkPlusDataSource* usm4EndEffectorTip;
 };
 
 // Macro to publish an isiTransform to a given tool. 
