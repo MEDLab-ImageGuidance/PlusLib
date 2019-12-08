@@ -93,26 +93,26 @@ private:
   /*************** USM1 LINK TRANSFORMS ***************/
   vtkPlusDataSource* usm1Shaft;
   vtkPlusDataSource* usm1Wrist;
-  vtkPlusDataSource* usm1EndEffectorJaw;
-  vtkPlusDataSource* usm1EndEffectorTip;
+  vtkPlusDataSource* usm1Jaws;
+  vtkPlusDataSource* usm1Tip;
 
   /*************** USM2 LINK TRANSFORMS ***************/
   vtkPlusDataSource* usm2Shaft;
   vtkPlusDataSource* usm2Wrist;
-  vtkPlusDataSource* usm2EndEffectorJaw;
-  vtkPlusDataSource* usm2EndEffectorTip;
+  vtkPlusDataSource* usm2Jaws;
+  vtkPlusDataSource* usm2Tip;
 
   /*************** USM3 LINK TRANSFORMS ***************/
   vtkPlusDataSource* usm3Shaft;
   vtkPlusDataSource* usm3Wrist;
-  vtkPlusDataSource* usm3EndEffectorJaw;
-  vtkPlusDataSource* usm3EndEffectorTip;
+  vtkPlusDataSource* usm3Jaws;
+  vtkPlusDataSource* usm3Tip;
 
   /*************** USM4 LINK TRANSFORMS ***************/
   vtkPlusDataSource* usm4Shaft;
   vtkPlusDataSource* usm4Wrist;
-  vtkPlusDataSource* usm4EndEffectorJaw;
-  vtkPlusDataSource* usm4EndEffectorTip;
+  vtkPlusDataSource* usm4Jaws;
+  vtkPlusDataSource* usm4Tip;
 };
 
 // Macro to publish an isiTransform to a given tool. 

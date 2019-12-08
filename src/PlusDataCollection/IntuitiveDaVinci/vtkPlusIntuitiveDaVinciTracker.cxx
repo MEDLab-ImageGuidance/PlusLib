@@ -45,10 +45,10 @@ vtkPlusIntuitiveDaVinciTracker::vtkPlusIntuitiveDaVinciTracker()
   , usm3(new UsmKinematicModel()), usm4(new UsmKinematicModel())
   , LastFrameNumber(0)
   , usm1Joints(NULL), usm2Joints(NULL), usm3Joints(NULL), usm4Joints(NULL)
-  , usm1Shaft(NULL), usm1Wrist(NULL), usm1EndEffectorJaw(NULL), usm1EndEffectorTip(NULL)
-  , usm2Shaft(NULL), usm2Wrist(NULL), usm2EndEffectorJaw(NULL), usm2EndEffectorTip(NULL)
-  , usm3Shaft(NULL), usm3Wrist(NULL), usm3EndEffectorJaw(NULL), usm3EndEffectorTip(NULL)
-  , usm4Shaft(NULL), usm4Wrist(NULL), usm4EndEffectorJaw(NULL), usm4EndEffectorTip(NULL)
+  , usm1Shaft(NULL), usm1Wrist(NULL), usm1Jaws(NULL), usm1Tip(NULL)
+  , usm2Shaft(NULL), usm2Wrist(NULL), usm2Jaws(NULL), usm2Tip(NULL)
+  , usm3Shaft(NULL), usm3Wrist(NULL), usm3Jaws(NULL), usm3Tip(NULL)
+  , usm4Shaft(NULL), usm4Wrist(NULL), usm4Jaws(NULL), usm4Tip(NULL)
 {
   this->StartThreadForInternalUpdates = true; // Want a dedicated thread
   this->RequirePortNameInDeviceSetConfiguration = true;
@@ -113,23 +113,23 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalConnect()
 
   GetToolByPortName("usm1Shaft", this->usm1Shaft);
   GetToolByPortName("usm1Wrist", this->usm1Wrist);
-  GetToolByPortName("usm1EndEffectorJaw", this->usm1EndEffectorJaw);
-  GetToolByPortName("usm1EndEffectorTip", this->usm1EndEffectorTip);
+  GetToolByPortName("usm1Jaws", this->usm1Jaws);
+  GetToolByPortName("usm1Tip", this->usm1Tip);
 
   GetToolByPortName("usm2Shaft", this->usm2Shaft);
   GetToolByPortName("usm2Wrist", this->usm2Wrist);
-  GetToolByPortName("usm2EndEffectorJaw", this->usm2EndEffectorJaw);
-  GetToolByPortName("usm2EndEffectorTip", this->usm2EndEffectorTip);
+  GetToolByPortName("usm2Jaws", this->usm2Jaws);
+  GetToolByPortName("usm2Tip", this->usm2Tip);
 
   GetToolByPortName("usm3Shaft", this->usm3Shaft);
   GetToolByPortName("usm3Wrist", this->usm3Wrist);
-  GetToolByPortName("usm3EndEffectorJaw", this->usm3EndEffectorJaw);
-  GetToolByPortName("usm3EndEffectorTip", this->usm3EndEffectorTip);
+  GetToolByPortName("usm3Jaws", this->usm3Jaws);
+  GetToolByPortName("usm3Tip", this->usm3Tip);
 
   GetToolByPortName("usm4Shaft", this->usm4Shaft);
   GetToolByPortName("usm4Wrist", this->usm4Wrist);
-  GetToolByPortName("usm4EndEffectorJaw", this->usm4EndEffectorJaw);
-  GetToolByPortName("usm4EndEffectorTip", this->usm4EndEffectorTip);
+  GetToolByPortName("usm4Jaws", this->usm4Jaws);
+  GetToolByPortName("usm4Tip", this->usm4Tip);
 
   LOG_DEBUG("Connection successful.");
 
@@ -239,11 +239,11 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   frameNumber = usm1Wrist->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm1Wrist->GetId(), usm1Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm1EndEffectorJaw->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm1EndEffectorJaw->GetId(), usm1Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm1Jaws->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1Jaws->GetId(), usm1Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm1EndEffectorTip->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm1EndEffectorTip->GetId(), usm1Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm1Tip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm1Tip->GetId(), usm1Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
 
   // Send out link transforms for Usm2
   frameNumber = usm2Shaft->GetFrameNumber() + 1;
@@ -252,11 +252,11 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   frameNumber = usm2Wrist->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm2Wrist->GetId(), usm2Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm2EndEffectorJaw->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm2EndEffectorJaw->GetId(), usm2Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm2Jaws->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2Jaws->GetId(), usm2Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm2EndEffectorTip->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm2EndEffectorTip->GetId(), usm2Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm2Tip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm2Tip->GetId(), usm2Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
 
   // Send out link transforms for Usm3
   frameNumber = usm3Shaft->GetFrameNumber() + 1;
@@ -265,11 +265,11 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   frameNumber = usm3Wrist->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm3Wrist->GetId(), usm3Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm3EndEffectorJaw->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm3EndEffectorJaw->GetId(), usm3Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm3Jaws->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm3Jaws->GetId(), usm3Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm3EndEffectorTip->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm3EndEffectorTip->GetId(), usm3Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm3Tip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm3Tip->GetId(), usm3Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
 
   // Send out link transforms for Usm4
   frameNumber = usm4Shaft->GetFrameNumber() + 1;
@@ -278,11 +278,11 @@ PlusStatus vtkPlusIntuitiveDaVinciTracker::InternalUpdate()
   frameNumber = usm4Wrist->GetFrameNumber() + 1;
   ToolTimeStampedUpdate(usm4Wrist->GetId(), usm4Transforms.toolToWorld[wristIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm4EndEffectorJaw->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm4EndEffectorJaw->GetId(), usm4Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm4Jaws->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm4Jaws->GetId(), usm4Transforms.toolToWorld[endEffectorJawIndex], TOOL_OK, frameNumber, toolTimestamp);
 
-  frameNumber = usm4EndEffectorTip->GetFrameNumber() + 1;
-  ToolTimeStampedUpdate(usm4EndEffectorTip->GetId(), usm4Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
+  frameNumber = usm4Tip->GetFrameNumber() + 1;
+  ToolTimeStampedUpdate(usm4Tip->GetId(), usm4Transforms.toolToWorld[endEffectorTipIndex], TOOL_OK, frameNumber, toolTimestamp);
 
   return PLUS_SUCCESS;
 }
