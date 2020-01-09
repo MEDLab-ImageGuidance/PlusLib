@@ -174,7 +174,7 @@ void UsmKinematicModel::ComputeKinematics()
   }
   
   if (jointIndex != DAVINCI_NUM_SETUP_JOINTS)
-    LOG_WARNING("Did not use all setup joint values when computing kiematics. Check DH table for joint types.");
+    LOG_DEBUG("Did not use all setup joint values when computing kiematics. Check DH table for joint types.");
 
   // Set active chain to world transform
   vtkMatrix4x4::Multiply4x4(mTransforms.setupToWorld[NUM_USM_DH_ROWS_SETUP - 1], mUsmToSetup, mTransforms.usmToWorld);
@@ -217,7 +217,7 @@ void UsmKinematicModel::ComputeKinematics()
   }
 
   if (jointIndex != numActiveJointsModified)
-    LOG_WARNING("Did not use all active joint values when computing kiematics. Check DH table for joint types.");
+    LOG_DEBUG("Did not use all active joint values when computing kiematics. Check DH table for joint types.");
 
 }
 
