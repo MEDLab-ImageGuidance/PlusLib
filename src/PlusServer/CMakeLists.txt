@@ -52,6 +52,13 @@ IF(MSVC OR ${CMAKE_GENERATOR} MATCHES "Xcode")
     )
 ENDIF()
 
+IF (PLUS_USE_ATRACSYS)
+  LIST(APPEND ${PROJECT_NAME}_SRCS Commands/vtkPlusAtracsysCommand.cxx)
+  IF(MSVC OR ${CMAKE_GENERATOR} MATCHES "Xcode")
+    LIST(APPEND ${PROJECT_NAME}_HDRS Commands/vtkPlusAtracsysCommand.h)
+  ENDIF()
+ENDIF()
+
 IF(PLUS_USE_STEALTHLINK)
   LIST(APPEND ${PROJECT_NAME}_SRCS Commands/vtkPlusStealthLinkCommand.cxx)
   IF(MSVC OR ${CMAKE_GENERATOR} MATCHES "Xcode")

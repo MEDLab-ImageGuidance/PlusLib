@@ -61,6 +61,7 @@ IF(PLUS_USE_LEAPMOTION)
   OPTION(PLUS_TEST_LEAPMOTION "Enable testing for LeapMotion device" OFF)
 ENDIF()
 OPTION(PLUS_USE_CLARIUS "Provide support for Clarius ultrasound probes" OFF)
+OPTION(PLUS_USE_STEAMVR "Provide support for the SteamVR tracking system" OFF)
 
 OPTION(PLUS_TEST_ULTRASONIX "Enable testing of acquisition from Ultrasonix ultrasound systems. Enable this only if an Ultrasonix device accessible from this computer." OFF)
 IF(PLUS_TEST_ULTRASONIX)
@@ -1590,10 +1591,11 @@ ENDIF()
 # --------------------------------------------------------------------------
 # Capistrano Labs support
 IF(PLUS_USE_CAPISTRANO_VIDEO)
-  IF(${CAPISTRANO_SDK_VERSION} STREQUAL "cSDK2019")
+  IF(${CAPISTRANO_SDK_VERSION} STREQUAL "cSDK2019.2")
+    ADD_DEFINITIONS(-DCAPISTRANO_SDK2019_2)
+  ELSEIF(${CAPISTRANO_SDK_VERSION} STREQUAL "cSDK2019")
     ADD_DEFINITIONS(-DCAPISTRANO_SDK2019)
-  ENDIF()
-  IF(${CAPISTRANO_SDK_VERSION} STREQUAL "cSDK2018")
+  ELSEIF(${CAPISTRANO_SDK_VERSION} STREQUAL "cSDK2018")
     ADD_DEFINITIONS(-DCAPISTRANO_SDK2018)
   ENDIF()
   SET(Capistrano_SRCS
@@ -2416,6 +2418,50 @@ IF(PLUS_USE_LEAPMOTION)
 ENDIF()
 
 # --------------------------------------------------------------------------
+# SteamVR support
+IF(PLUS_USE_STEAMVR)
+  FIND_PACKAGE(OpenVR REQUIRED)
+
+  SET(STEAMVR_SRCS
+    SteamVR/vtkPlusSteamVRTracker.cxx
+    )
+
+  IF(MSVC OR ${CMAKE_GENERATOR} MATCHES "Xcode")
+    SET(STEAMVR_HDRS
+      SteamVR/vtkPlusSteamVRTracker.h
+      )
+  ENDIF()
+
+  LIST(APPEND ${PROJECT_NAME}_HDRS
+    ${STEAMVR_HDRS}
+    )
+
+  LIST(APPEND ${PROJECT_NAME}_SRCS
+    ${STEAMVR_SRCS}
+    )
+
+  LIST(APPEND ${PROJECT_NAME}_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/SteamVR
+    ${OpenVR_INCLUDE_DIRS}
+    )
+
+  LIST(APPEND ${PROJECT_NAME}_PRIVATE_LIBS
+    OpenVR
+    )
+
+  GET_TARGET_PROPERTY(_install_file OpenVR IMPORTED_LOCATION_RELEASE)
+  IF(NOT _install_file)
+    GET_TARGET_PROPERTY(_install_file OpenVR IMPORTED_IMPLIB)
+    IF(NOT _install_file)
+      MESSAGE(FATAL_ERROR "Unable to locate OpenVR library to install. Check OpenVR installation.")
+    ENDIF()
+  ENDIF()
+  LIST(APPEND External_Libraries_Install
+    ${_install_file}
+    )
+ENDIF()
+
+# --------------------------------------------------------------------------
 # Build the library
 LIST(APPEND ${PROJECT_NAME}_LIBS
   vtkPlusCommon
@@ -2514,6 +2560,7 @@ source_group("WitMotionTracker" FILES ${WitMotionTracker_HDRS} ${WitMotionTracke
 source_group("LeapMotion" FILES ${LeapMotion_HDRS} ${LeapMotion_SRCS})
 source_group("ClariusVideo" FILES ${CLARIUS_HDRS} ${CLARIUS_SRCS})
 source_group("BlackMagic" FILES ${BlackMagicDeckLink_HDRS} ${BlackMagicDeckLink_SRCS})
+source_group("SteamVR" FILES ${STEAMVR_HDRS} ${STEAMVR_SRCS})
 
 # --------------------------------------------------------------------------
 # Set external MS project
